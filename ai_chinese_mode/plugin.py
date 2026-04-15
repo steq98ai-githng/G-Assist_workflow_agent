@@ -137,7 +137,8 @@ def run_agentic_workflow(user_query: str):
             key = os.environ.get("GEMINI_API_KEY")
             if not key:
                 if not os.path.exists(GEMINI_KEY_FILE): return "❌ 請設定 GEMINI_API_KEY 環境變數或檢核 gemini-api.key 設定。"
-                with open(GEMINI_KEY_FILE, "r") as f: key = f.read().strip()
+                with open(GEMINI_KEY_FILE, "r", encoding="utf-8") as f: key = f.read().strip()
+                if not key: return "❌ gemini-api.key 檔案內容為空。"
             _client = genai.Client(api_key=key)
         except Exception as e: return f"❌ Gemini Engine Fault: {e}"
 
