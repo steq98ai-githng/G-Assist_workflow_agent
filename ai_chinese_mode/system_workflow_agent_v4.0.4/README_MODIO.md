@@ -35,7 +35,7 @@
 - 啟動時外掛會在同目錄下自動產生 `config.json`，您可以修改裡面的：
   - `discord_webhook_url` (綁定您的 Discord Webhook)
   - `mcp_server_command` & `args` (綁定如 `npx @modelcontextprotocol/server-filesystem C:\`)
-- **啟動 AI 模式**：至 Google AI Studio 申請免費的 Gemini API Key，並在對話中直接貼上或寫入 `gemini-api.key` 檔中即可啟動神經網路引擎。
+- **啟動 AI 模式**：至 Google AI Studio 申請免費的 Gemini API Key，請設定 `GEMINI_API_KEY` 環境變數，或寫入 `gemini-api.key` 檔中即可啟動神經網路引擎。
 
 ## 💡 為什麼選擇這個外掛？
 

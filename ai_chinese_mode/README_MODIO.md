@@ -6,7 +6,7 @@
 - **G-Assist Protocol V2**: 符合 NVIDIA 2025/2026 最新外掛規範。
 
 ## ⚙️ 安裝與測試
-1. **Gemini API Key**: 請將您的 API Key 填入 `gemini-api.key` (純文字檔)。
+1. **Gemini API Key**: 請設定 `GEMINI_API_KEY` 環境變數，或將您的 API Key 填入 `gemini-api.key` (純文字檔)。
 2. **啟動測試 (Standalone)**: 雙擊 `run_agent.bat`。
 3. **進入 G-Assist**: 在 NVIDIA App 中對著助理下指令，例如：「幫我分析目前的 Git 分支變更」。
 

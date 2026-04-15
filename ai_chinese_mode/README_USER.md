@@ -74,7 +74,7 @@ install.bat
 ### Gemini API Key
 1. 前往 https://aistudio.google.com/app/apikey
 2. 建立 API Key
-3. 存入：`%PROGRAMDATA%\...\ai_chinese_mode\gemini-api.key`
+3. 設定為 `GEMINI_API_KEY` 環境變數，或存入：`%PROGRAMDATA%\...\ai_chinese_mode\gemini-api.key`
 4. 或在對話中直接貼上 Key，外掛會自動儲存
 
 ### Discord Webhook
