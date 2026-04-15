@@ -1,7 +1,7 @@
 # AI Experiment Sandbox
 # Modifications to this file are allowed for optimization experiments.
 
-def main():
+def main() -> None:
     pass
 
 if __name__ == "__main__":
