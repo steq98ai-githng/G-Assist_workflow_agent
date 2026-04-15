@@ -153,6 +153,15 @@ def run_agentic_workflow(user_query: str):
             
             tools = [Tool(function_declarations=func_decls), Tool(google_search=GoogleSearch())]
             
+            # Pre-cache MCP tool listings to avoid redundant API calls
+            mcp_tool_map = {}
+            for client in _mcp_clients.values():
+                try:
+                    mcp_tool_map[client] = [t["name"] for t in client.list_tools()]
+                except Exception as e:
+                    logger.error(f"[MCP] Failed to list tools: {e}")
+                    mcp_tool_map[client] = []
+
             # DevCore Vault Role Prompt
             system_prompt = (
                 "Role: Antigravity 首席系統工程師博士 (DevCore)\n"
@@ -186,8 +195,7 @@ def run_agentic_workflow(user_query: str):
                     else:
                         # MCP Tool Routing
                         res_val = "MCP Link Error."
-                        for client in _mcp_clients.values():
-                            mcp_tools = [t["name"] for t in client.list_tools()]
+                        for client, mcp_tools in mcp_tool_map.items():
                             if fn in mcp_tools:
                                 r = client.call_tool(fn, dict(call.args))
                                 res_val = str(r); break
