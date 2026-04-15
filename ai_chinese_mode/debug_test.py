@@ -28,8 +28,8 @@ except ImportError as e:
 
 # --- Check API Key ---
 KEY_FILE = os.path.join(_plugin_dir, "gemini-api.key")
-if not os.environ.get("GEMINI_API_KEY") and not os.path.exists(KEY_FILE):
-    print("❌ 錯誤: 請設定 GEMINI_API_KEY 環境變數或建立 gemini-api.key 後再執行。")
+if not os.environ.get("GEMINI_API_KEY") and not os.path.exists(plugin.GEMINI_KEY_FILE):
+    print(f"❌ 錯誤: 請設定 GEMINI_API_KEY 環境變數或於 {plugin.GEMINI_KEY_FILE} 建立金鑰。")
     sys.exit(1)
 
 print("✅ SDK & API 密鑰載入成功。")
