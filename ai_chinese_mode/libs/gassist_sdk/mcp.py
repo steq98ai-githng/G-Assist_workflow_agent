@@ -703,7 +703,7 @@ class MCPSessionManager:
                     try:
                         self._on_error(e)
                     except Exception:
-                        pass
+                        logger.error("Error in on_error callback", exc_info=True)
             
             # Sleep in small increments to allow quick shutdown
             self._stop_event.wait(timeout=1.0)
@@ -1003,7 +1003,7 @@ class MCPClient:
             try:
                 self._send_notification("notifications/shutdown")
             except Exception:
-                pass
+                logger.debug("Failed to send shutdown notification", exc_info=True)
         
         self._transport.close()
         self._initialized = False

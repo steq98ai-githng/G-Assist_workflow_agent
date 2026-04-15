@@ -1,4 +1,0 @@
-2026-02-23 00:10:07,050 [INFO] gassist_sdk.plugin: Plugin 'ai_chinese_mode' v1.0.0 initialized (Protocol V2)
-2026-02-23 00:10:07,050 [DEBUG] gassist_sdk.plugin: Registered command: ai_chinese_mode
-2026-02-23 00:10:07,050 [INFO] __main__: G-Assist 中文外掛啟動 (Protocol V2)...
-2026-02-23 00:10:07,050 [INFO] gassist_sdk.plugin: Starting plugin 'ai_chinese_mode' (Protocol V2)
