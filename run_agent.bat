@@ -8,7 +8,7 @@ python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Python not found in PATH!
     pause
-    exit /b
+    goto :eof
 )
 echo [INFO] Starting Plugin Service (Protocol V2 + GitKraken MCP)...
 python plugin.py
