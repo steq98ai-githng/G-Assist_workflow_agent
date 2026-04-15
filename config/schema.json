@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "gemini_model": {
+      "type": "string",
+      "description": "The Gemini model to use for the AI agent."
+    },
+    "mcp_servers": {
+      "type": "array",
+      "description": "List of MCP servers to integrate.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the MCP server."
+          },
+          "command": {
+            "type": "string",
+            "description": "The command to run the MCP server."
+          },
+          "args": {
+            "type": "array",
+            "description": "Arguments for the MCP server command.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "command", "args"]
+      }
+    }
+  },
+  "required": ["gemini_model", "mcp_servers"]
+}

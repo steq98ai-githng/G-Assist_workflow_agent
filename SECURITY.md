@@ -2,20 +2,17 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Currently, only the latest release (v4.0.4+) of the System Workflow Agent is supported for security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| >= 4.0.4| :white_check_mark: |
+| < 4.0.0 | :x:                |
+
+## Secret Management
+* **API Keys:** The Gemini API key must never be hardcoded. It is loaded via the `GEMINI_API_KEY` environment variable or read from `gemini-api.key` stored securely in the plugin's data directory.
+* **Paths:** Do not use hardcoded absolute paths to user home directories. Always use environment variables (`PROGRAMDATA`) or dynamic path resolution.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
-
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+If you discover a security vulnerability within this project, please report it via a private GitHub issue or contact the maintainers directly. Do not disclose vulnerabilities publicly until they have been patched.

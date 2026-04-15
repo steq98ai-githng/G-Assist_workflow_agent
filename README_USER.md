@@ -1,22 +1,33 @@
-# AI 中文版 (Project G-Assist) 使用手冊
+# 📖 System Workflow Agent 用戶手冊
 
-## 🎯 這是什麼？
+歡迎使用 Antigravity DevCore System Workflow Agent。
+本指南將協助您快速上手如何與這名「虛擬系統工程師」互動。
 
-這是專為 NVIDIA Project G-Assist 打造的「中文大腦」，讓原本只能聽懂英文的 G-Assist，現在可以直接用流利的中文對長（例如：接受「初始化」、「關閉」等中文指令）並用中文回報結果！
+## 🗣️ 如何與 Agent 互動？
 
-## 🚀 如何安裝與啟動
+您可以透過 NVIDIA Overlay (預設快捷鍵 `Alt+Z`) 喚出 G-Assist 介面，並直接輸入**繁體中文**指令。
 
-1. 進入工作區資料夾：`d:\AI_Tools\Antigravity-repo\workspace\projects\NVIDIA\ai_chinese_mode`
-2. **點兩下 `install.bat`**：腳本會自動請求系統權限，並將編譯好的外掛及設定檔複製到 G-Assist 的核心資料夾內。
-3. 重新啟動 **NVIDIA App** 與 **Project G-Assist**。
-4. 直接對著 G-Assist 輸入或語音說出中文指令，例如：
-   - 「請幫我初始化系統」或「啟動」
-   - 「系統狀態」或「狀態」
-   - 「關閉」或「停止」
-   - 「幫助」
-5. G-Assist 將會自動辨識您的中文意圖，執行對應功能，並以中文回覆您。
+### 常見指令範例
 
-## ⚠️ 注意事項
+#### 1. 系統控制與狀態
+* 「請幫我初始化系統模組」
+* 「目前的系統狀態如何？」
+* 「幫我執行系統視覺診斷，檢查桌面有沒有異常錯誤訊息」
 
-- **已知限制**：目前第一版先行實作了「初始化」、「關閉」、「重啟」、「狀態」、「幫助」這五種核心指令的意圖辨識，其餘指令會先直接回傳收到訊息以待後續擴充。
-- **系統依賴說明**：產生執行檔的過程復用了您系統中的 Python 環境與 PyInstaller。因安裝外掛需寫入 `C:\ProgramData`，`install.bat` 設有自動提權機制，點擊後請務必於跳出的視窗點選「是」。
+#### 2. 開發者工作流 (GitKraken MCP)
+* 「列出目前專案的所有 Git 分支」
+* 「幫我分析最近一次的 commit 變更內容」
+* 「目前的 Git 狀態為何？」
+
+#### 3. 專業諮詢
+* 「我遇到一個 Python ImportError，請幫我分析可能的原因」
+* 「推薦幾個適合前端開發的 VS Code 擴充套件」
+
+## ⚙️ 故障排除
+
+* **Q: Agent 回覆「MCP Link Error」怎麼辦？**
+  * A: 請確認您的電腦是否已安裝 Node.js，並且 `npx` 指令可以在命令提示字元中正常執行。預設的 GitKraken MCP 需要 Node.js 環境。
+* **Q: Agent 提示缺少 Gemini API Key？**
+  * A: 請前往外掛安裝目錄 (`C:\ProgramData\NVIDIA Corporation\nvtopps\rise\plugins\system_workflow_agent`)，確認 `gemini-api.key` 檔案存在且內容正確無換行。
+* **Q: 無法喚出 G-Assist 或沒有反應？**
+  * A: 請嘗試重新啟動 NVIDIA App，或檢查 `agent_data\system_workflow_agent.log` 檔案中的錯誤訊息。

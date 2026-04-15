@@ -20,7 +20,15 @@ import sys
 import os
 import traceback
 import signal
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, Dict, List, Optional, TypeVar, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .mcp import MCPTransport, MCPClient, MCPSessionManager, FunctionDef
+else:
+    MCPTransport = Any
+    MCPClient = Any
+    MCPSessionManager = Any
+    FunctionDef = Any
 from dataclasses import dataclass, field
 
 from .protocol import Protocol, ProtocolError, ConnectionClosed

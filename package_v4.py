@@ -10,7 +10,7 @@ import os
 import zipfile
 import shutil
 
-PROJECT_DIR = r"d:\AI_Tools\Antigravity-repo\workspace\projects\NVIDIA\ai_chinese_mode"
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 DIST_DIR = os.path.join(PROJECT_DIR, "dist")
 PLUGIN_NAME = "system_workflow_agent"
 VERSION = "4.0.4"
@@ -25,6 +25,11 @@ FILES_TO_INCLUDE = [
 ]
 DIRS_TO_INCLUDE = [
     "libs",
+    "core",
+    "config",
+    "mcp",
+    "vision",
+    "intents",
 ]
 
 def clean_and_package():
