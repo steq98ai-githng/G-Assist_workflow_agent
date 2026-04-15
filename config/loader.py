@@ -24,7 +24,7 @@ def _validate_config(config: Dict[str, Any]) -> bool:
             return False
         if not all(k in server for k in ["name", "command", "args"]):
             return False
-        if not isinstance(server["args"], list):
+        if not isinstance(server["args"], list) or not all(isinstance(a, str) for a in server["args"]):
             return False
 
     return True
