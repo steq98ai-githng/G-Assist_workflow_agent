@@ -169,10 +169,11 @@ def run_agentic_workflow(user_query: str):
             mcp_tool_map = {}
             for client in _mcp_clients.values():
                 try:
-                    mcp_tool_map[client] = [t["name"] for t in client.list_tools()]
+                    # Map sanitized names to original names for correct routing and execution
+                    mcp_tool_map[client] = {sanitize_name(t["name"]): t["name"] for t in client.list_tools()}
                 except Exception as e:
                     logger.error(f"[MCP] Failed to list tools: {e}")
-                    mcp_tool_map[client] = []
+                    mcp_tool_map[client] = {}
 
             for _ in range(5):
                 resp = _client.models.generate_content(model=cfg["gemini_model"], contents=contents, config=GenerateContentConfig(tools=tools))
