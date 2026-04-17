@@ -317,7 +317,16 @@ class StdioTransport(MCPTransport):
             env: Environment variables for the subprocess
         """
         self._command = command
-        self._env = {**os.environ, **(env or {})}
+
+        # Security: Prevent credential leakage to child processes
+        # Filter out sensitive environment variables from os.environ
+        sensitive_keywords = ["API_KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+        safe_env = {
+            k: v for k, v in os.environ.items()
+            if not any(keyword in k.upper() for keyword in sensitive_keywords)
+        }
+
+        self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
     
