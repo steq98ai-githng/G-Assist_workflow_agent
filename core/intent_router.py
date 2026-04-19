@@ -102,8 +102,9 @@ class IntentRouter:
                 res_q.put(("done", None))
 
             except Exception as e:
-                logger.error(f"Error processing intent: {e}", exc_info=True)
-                res_q.put(("error", "處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+                logger.exception("Error processing intent")
+                res_q.put(("text", "❌ 處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+                res_q.put(("error", None))
 
         threading.Thread(target=process, daemon=True).start()
         plugin_stream_func("💠 [Vault Analysis Initiated...]\n")
