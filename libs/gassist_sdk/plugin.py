@@ -349,7 +349,7 @@ class Plugin:
             
         except Exception as e:
             logger.error(f"Command execution error: {e}\n{traceback.format_exc()}")
-            self._send_error(request.id, ErrorCode.PLUGIN_ERROR, str(e))
+            self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Command execution failed. See logs for details.")
         finally:
             self._current_request_id = None
     
@@ -384,7 +384,7 @@ class Plugin:
                 
         except Exception as e:
             logger.error(f"Input handling error: {e}\n{traceback.format_exc()}")
-            self._send_error(request.id, ErrorCode.PLUGIN_ERROR, str(e))
+            self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Input handling failed. See logs for details.")
         finally:
             self._current_request_id = None
     

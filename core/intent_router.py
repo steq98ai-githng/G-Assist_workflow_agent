@@ -44,7 +44,8 @@ class IntentRouter:
         except ImportError:
             return "❌ SDK missing: google-genai is not installed."
         except Exception as e:
-            return f"❌ Gemini Engine Fault: {e}"
+            logger.exception("Gemini Engine initialization fault")
+            return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
 
     def process_query(self, user_query: str, plugin_stream_func) -> str:
         """Processes a query in a background thread and streams results."""
@@ -107,8 +108,9 @@ class IntentRouter:
                 res_q.put(("done", None))
 
             except Exception as e:
-                logger.error(f"Error processing intent: {e}")
-                res_q.put(("error", str(e)))
+                logger.exception("Error processing intent")
+                res_q.put(("text", "❌ 處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+                res_q.put(("error", None))
 
         threading.Thread(target=process, daemon=True).start()
         plugin_stream_func("💠 [Vault Analysis Initiated...]\n")
