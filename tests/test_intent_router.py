@@ -23,4 +23,4 @@ class TestIntentRouter(unittest.TestCase):
 
         with patch.dict('os.environ', clear=True):
             error = router._init_gemini()
-            self.assertIn("請設定 GEMINI_API_KEY", error)
+            self.assertIn("缺少 Gemini API Key", error)

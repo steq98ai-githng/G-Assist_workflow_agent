@@ -137,7 +137,13 @@ def run_agentic_workflow(user_query: str):
             key = os.environ.get("GEMINI_API_KEY")
             if not key:
                 if not os.path.exists(GEMINI_KEY_FILE):
-                    return "❌ 請設定 GEMINI_API_KEY 環境變數或檢查 gemini-api.key 設定。"
+                    return (
+                        "❌ 缺少 Gemini API Key。\n\n"
+                        "🛠️ 解決步驟：\n"
+                        "1. 在外掛目錄建立 `gemini-api.key` 檔案。\n"
+                        "2. 將您的 API Key 貼入該檔案。\n"
+                        "3. 或者，您也可以設定 `GEMINI_API_KEY` 環境變數。"
+                    )
                 with open(GEMINI_KEY_FILE, "r") as f: key = f.read().strip()
             _client = genai.Client(api_key=key)
         except Exception as e: return f"❌ Gemini Engine Fault: {e}"
@@ -222,7 +228,14 @@ def run_agentic_workflow(user_query: str):
 def handle_agent(user_input: str = None, context: Context = None):
     if not user_input:
         plugin.set_keep_session(True)
-        return "💠 **Antigravity DevCore System Agent v4.0.4**\n工程指令就緒，請輸入查詢事項。"
+        return (
+            "💠 **Antigravity DevCore System Agent v4.0.4**\n"
+            "工程指令就緒，請輸入查詢事項。\n\n"
+            "💡 提示：您可以試著問我：\n"
+            "- 「幫我診斷目前的系統狀態」\n"
+            "- 「列出目前可用的工具」\n"
+            "- 「查詢最近的 Git 提交紀錄」"
+        )
     run_agentic_workflow(user_input)
     plugin.set_keep_session(True)
     return ""
