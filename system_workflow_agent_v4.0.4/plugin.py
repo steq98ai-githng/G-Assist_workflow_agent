@@ -140,7 +140,9 @@ def run_agentic_workflow(user_query: str):
                     return "❌ 請設定 GEMINI_API_KEY 環境變數或檢查 gemini-api.key 設定。"
                 with open(GEMINI_KEY_FILE, "r") as f: key = f.read().strip()
             _client = genai.Client(api_key=key)
-        except Exception as e: return f"❌ Gemini Engine Fault: {e}"
+        except Exception as e:
+            logger.error(f"Gemini Engine initialization fault: {e}", exc_info=True)
+            return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
 
     cfg = load_config()
     res_q = queue.Queue()
@@ -207,7 +209,9 @@ def run_agentic_workflow(user_query: str):
                     results.append(Part.from_function_response(name=fn, response={"result": res_val}))
                 contents.append(Content(role="user", parts=results))
             res_q.put(("done", None))
-        except Exception as e: res_q.put(("error", str(e)))
+        except Exception as e:
+            logger.error(f"Error processing intent: {e}", exc_info=True)
+            res_q.put(("error", "處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
 
     threading.Thread(target=process, daemon=True).start()
     plugin.stream("💠 [Vault Analysis Initiated...]\n")
