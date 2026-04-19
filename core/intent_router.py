@@ -38,7 +38,7 @@ class IntentRouter:
         except ImportError:
             return "❌ SDK missing: google-genai is not installed."
         except Exception as e:
-            logger.error(f"Gemini Engine initialization fault: {e}", exc_info=True)
+            logger.exception("Gemini Engine initialization fault")
             return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
 
     def process_query(self, user_query: str, plugin_stream_func) -> str:
