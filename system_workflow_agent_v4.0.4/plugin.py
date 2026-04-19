@@ -141,8 +141,10 @@ def run_agentic_workflow(user_query: str):
                 with open(GEMINI_KEY_FILE, "r") as f: key = f.read().strip()
             _client = genai.Client(api_key=key)
         except Exception as e:
-            logger.error(f"Gemini Engine initialization fault: {e}", exc_info=True)
-            return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
+            logger.exception("Gemini Engine initialization fault")
+            msg = "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
+            plugin.stream(msg)
+            return msg
 
     cfg = load_config()
     res_q = queue.Queue()
