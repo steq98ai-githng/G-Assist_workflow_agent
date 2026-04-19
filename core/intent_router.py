@@ -29,7 +29,13 @@ class IntentRouter:
             if not key:
                 key_file = os.path.join(self.registry.plugin_dir, "gemini-api.key")
                 if not os.path.exists(key_file):
-                    return "❌ 請設定 GEMINI_API_KEY 環境變數或檢查 gemini-api.key 設定。"
+                    return (
+                        "❌ 缺少 Gemini API Key。\n\n"
+                        "🛠️ 解決步驟：\n"
+                        "1. 在外掛目錄建立 `gemini-api.key` 檔案。\n"
+                        "2. 將您的 API Key 貼入該檔案。\n"
+                        "3. 或者，您也可以設定 `GEMINI_API_KEY` 環境變數。"
+                    )
                 with open(key_file, "r", encoding="utf-8") as f:
                     key = f.read().strip()
 
