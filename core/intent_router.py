@@ -42,10 +42,18 @@ class IntentRouter:
             self._client = genai.Client(api_key=key)
             return ""
         except ImportError:
-            return "❌ SDK missing: google-genai is not installed."
+            return (
+                "❌ 缺少核心 SDK：未安裝 `google-genai` 套件。\n\n"
+                "🛠️ 解決步驟：\n"
+                "請在終端機執行 `pip install google-genai` 來安裝所需依賴。"
+            )
         except Exception as e:
             logger.exception("Gemini Engine initialization fault")
-            return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
+            return (
+                "❌ Gemini 引擎初始化失敗。\n\n"
+                "💡 提示：這可能是由於網路連線問題或是設定檔格式錯誤。\n"
+                "請查閱系統日誌以獲取詳細錯誤資訊。"
+            )
 
     def process_query(self, user_query: str, plugin_stream_func) -> str:
         """Processes a query in a background thread and streams results."""
@@ -109,7 +117,12 @@ class IntentRouter:
 
             except Exception as e:
                 logger.exception("Error processing intent")
-                res_q.put(("text", "❌ 處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+                res_q.put(("text", (
+                    "❌ 處理您的查詢時發生了非預期的系統錯誤。\n\n"
+                    "💡 提示：\n"
+                    "1. 請確認您的網路連線是否正常。\n"
+                    "2. 如果問題持續發生，請查閱系統日誌 (`system_workflow_agent.log`) 以獲取詳細資訊。"
+                )))
                 res_q.put(("error", None))
 
         threading.Thread(target=process, daemon=True).start()
