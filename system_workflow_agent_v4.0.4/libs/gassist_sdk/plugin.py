@@ -216,7 +216,7 @@ class Plugin:
         except ConnectionClosed:
             logger.info("Connection closed, shutting down")
         except Exception as e:
-            logger.error(f"Unexpected error: {e}\n{traceback.format_exc()}")
+            logger.error("Unexpected error", exc_info=True)
         finally:
             self._running = False
             logger.info(f"Plugin '{self.name}' stopped")
@@ -237,7 +237,7 @@ class Plugin:
                 logger.error(f"Protocol error: {e}")
                 # Continue trying to read next message
             except Exception as e:
-                logger.error(f"Error processing message: {e}\n{traceback.format_exc()}")
+                logger.error("Error processing message", exc_info=True)
     
     def _handle_request(self, request: JsonRpcRequest):
         """Handle a JSON-RPC request."""
@@ -348,7 +348,7 @@ class Plugin:
             self._send_complete(request.id, True, result, self._keep_session)
             
         except Exception as e:
-            logger.error(f"Command execution error: {e}\n{traceback.format_exc()}")
+            logger.error("Command execution error", exc_info=True)
             self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Command execution failed. See logs for details.")
         finally:
             self._current_request_id = None
@@ -383,7 +383,7 @@ class Plugin:
                 self._send_complete(request.id, True, f"Received: {content}", False)
                 
         except Exception as e:
-            logger.error(f"Input handling error: {e}\n{traceback.format_exc()}")
+            logger.error("Input handling error", exc_info=True)
             self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Input handling failed. See logs for details.")
         finally:
             self._current_request_id = None
@@ -823,7 +823,8 @@ class MCPPlugin(Plugin):
                                 if executor:
                                     return executor()
                         except Exception as e:
-                            return f"Failed to reconnect: {e}"
+                            logger.error("Failed to reconnect", exc_info=True)
+                            return "Failed to reconnect. See logs for details."
                     return f"Function '{fn_name}' - MCP server unavailable"
                 return handler
             
