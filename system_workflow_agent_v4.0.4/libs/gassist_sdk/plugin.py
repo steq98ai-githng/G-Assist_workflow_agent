@@ -823,8 +823,8 @@ class MCPPlugin(Plugin):
                                 if executor:
                                     return executor()
                         except Exception as e:
-                            logger.error("Failed to reconnect", exc_info=True)
-                            return "Failed to reconnect. See logs for details."
+                            logger.error("Error during lazy reconnection or execution", exc_info=True)
+                            return "Command execution failed. See logs for details."
                     return f"Function '{fn_name}' - MCP server unavailable"
                 return handler
             
