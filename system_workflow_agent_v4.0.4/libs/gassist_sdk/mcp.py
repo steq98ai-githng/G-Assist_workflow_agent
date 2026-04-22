@@ -401,7 +401,9 @@ class HTTPTransport(MCPTransport):
         self,
         url: str,
         timeout: float = 30.0,
-        session_timeout: float = 300.0
+        session_timeout: float = 300.0,
+        verify: Union[bool, str] = True,
+        proxies: Optional[Dict[str, str]] = None
     ):
         """
         Initialize HTTP transport.
@@ -410,6 +412,8 @@ class HTTPTransport(MCPTransport):
             url: MCP server endpoint URL
             timeout: Request timeout in seconds
             session_timeout: Session idle timeout in seconds
+            verify: SSL verification (bool or path to CA bundle)
+            proxies: Dictionary mapping protocol to proxy URL
         """
         if not HAS_REQUESTS:
             raise MCPError("HTTP transport requires 'requests' library")
@@ -417,6 +421,8 @@ class HTTPTransport(MCPTransport):
         self._url = url
         self._timeout = timeout
         self._session_timeout = session_timeout
+        self._verify = verify
+        self._proxies = proxies
         self._session_id: Optional[str] = None
         self._session_last_used: float = 0.0
         self._closed = False
@@ -442,7 +448,9 @@ class HTTPTransport(MCPTransport):
                     self._url,
                     headers=headers,
                     json=message,
-                    timeout=self._timeout
+                    timeout=self._timeout,
+                    verify=self._verify,
+                    proxies=self._proxies
                 )
                 
                 # Capture session ID
@@ -847,6 +855,8 @@ class MCPClient:
         url: str = None,
         timeout: float = 30.0,
         session_timeout: float = 300.0,
+        verify: Union[bool, str] = True,
+        proxies: Optional[Dict[str, str]] = None,
         # Client info
         client_name: str = "G-Assist-Plugin",
         client_version: str = "1.0.0"
@@ -859,6 +869,8 @@ class MCPClient:
             url: HTTP URL (creates HTTPTransport if transport not provided)
             timeout: Request timeout
             session_timeout: Session idle timeout
+            verify: SSL verification for HTTP transport
+            proxies: Proxies for HTTP transport
             client_name: Client name for initialization
             client_version: Client version for initialization
         """
@@ -867,7 +879,13 @@ class MCPClient:
         elif url:
             if not HAS_REQUESTS:
                 raise MCPError("HTTP transport requires 'requests' library")
-            self._transport = HTTPTransport(url, timeout, session_timeout)
+            self._transport = HTTPTransport(
+                url,
+                timeout=timeout,
+                session_timeout=session_timeout,
+                verify=verify,
+                proxies=proxies
+            )
         else:
             raise ValueError("Must provide either transport or url")
         
