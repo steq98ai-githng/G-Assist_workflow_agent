@@ -74,7 +74,7 @@ MCP_PROTOCOL_VERSION = "2024-11-05"
 
 class MCPError(Exception):
     """Raised when an MCP operation fails."""
-    
+
     def __init__(self, message: str, code: int = -1, data: Any = None):
         super().__init__(message)
         self.code = code
@@ -88,7 +88,7 @@ class MCPError(Exception):
 def sanitize_name(name: str) -> str:
     """
     Convert a name to a valid function identifier.
-    
+
     Examples:
         "Open Webpage" -> "open_webpage"
         "Play Audio (Test)" -> "play_audio_test"
@@ -103,7 +103,7 @@ def sanitize_name(name: str) -> str:
 class FunctionDef:
     """
     Definition of a dynamically discovered function.
-    
+
     Attributes:
         name: Function name (sanitized to valid identifier)
         description: Human-readable description for LLM
@@ -118,7 +118,7 @@ class FunctionDef:
     executor: Callable[[], Any] = None
     properties: Dict[str, Any] = field(default_factory=dict)
     required: List[str] = field(default_factory=list)
-    
+
     def to_manifest_function(self) -> Dict[str, Any]:
         """Convert to manifest function format."""
         return {
@@ -137,14 +137,14 @@ class FunctionDef:
 class FunctionRegistry:
     """
     Registry for dynamically discovered functions.
-    
+
     Handles caching to disk and manifest updates.
     """
-    
+
     def __init__(self, plugin_name: str, plugin_dir: str = None, source_dir: str = None):
         """
         Initialize function registry.
-        
+
         Args:
             plugin_name: Plugin name (for cache file naming)
             plugin_dir: Plugin directory (defaults to PROGRAMDATA location)
@@ -152,7 +152,7 @@ class FunctionRegistry:
         """
         self.plugin_name = plugin_name
         self.source_dir = source_dir
-        
+
         if plugin_dir:
             self.plugin_dir = plugin_dir
         else:
@@ -160,40 +160,40 @@ class FunctionRegistry:
                 os.environ.get("PROGRAMDATA", "."),
                 "NVIDIA Corporation", "nvtopps", "rise", "plugins", plugin_name
             )
-        
+
         self.cache_file = os.path.join(self.plugin_dir, "discovered_functions.json")
         self.manifest_file = os.path.join(self.plugin_dir, "manifest.json")
-        
+
         self._functions: Dict[str, FunctionDef] = {}
         self._base_functions: List[Dict[str, Any]] = []
         self._mcp_config: Optional[Dict[str, Any]] = None
-    
+
     def set_base_functions(self, functions: List[Dict[str, Any]]):
         """Set the base (static) functions that are always available."""
         self._base_functions = functions
-    
+
     def set_mcp_config(self, config: Dict[str, Any]):
         """Set MCP configuration for manifest."""
         self._mcp_config = config
-    
+
     def register(self, func: FunctionDef):
         """Register a discovered function."""
         self._functions[func.name] = func
         logger.debug(f"Registered function: {func.name}")
-    
+
     def register_all(self, functions: List[FunctionDef]):
         """Register multiple discovered functions."""
         for func in functions:
             self.register(func)
-    
+
     def get(self, name: str) -> Optional[FunctionDef]:
         """Get a registered function by name."""
         return self._functions.get(name)
-    
+
     def all_functions(self) -> List[FunctionDef]:
         """Get all registered functions."""
         return list(self._functions.values())
-    
+
     def save_cache(self):
         """Save discovered functions to cache file."""
         cache = {}
@@ -205,7 +205,7 @@ class FunctionRegistry:
                 "properties": func.properties,
                 "required": func.required
             }
-        
+
         try:
             os.makedirs(self.plugin_dir, exist_ok=True)
             with open(self.cache_file, "w") as f:
@@ -213,7 +213,7 @@ class FunctionRegistry:
             logger.info(f"Saved {len(cache)} functions to cache")
         except Exception as e:
             logger.error(f"Failed to save function cache: {e}")
-    
+
     def load_cache(self) -> Dict[str, Dict[str, Any]]:
         """Load functions from cache file."""
         try:
@@ -223,14 +223,14 @@ class FunctionRegistry:
         except Exception as e:
             logger.error(f"Failed to load function cache: {e}")
         return {}
-    
+
     def update_manifest(self, version: str = "1.0.0", description: str = ""):
         """Update manifest with discovered functions."""
         functions = list(self._base_functions)
-        
+
         for func in self._functions.values():
             functions.append(func.to_manifest_function())
-        
+
         manifest = {
             "manifestVersion": 1,
             "name": self.plugin_name,
@@ -241,11 +241,11 @@ class FunctionRegistry:
             "protocol_version": "2.0",
             "functions": functions
         }
-        
+
         # Add MCP configuration if set
         if self._mcp_config:
             manifest["mcp"] = self._mcp_config
-        
+
         # Write to deploy directory
         try:
             os.makedirs(self.plugin_dir, exist_ok=True)
@@ -254,7 +254,7 @@ class FunctionRegistry:
             logger.info(f"Updated manifest at {self.manifest_file} with {len(functions)} functions")
         except Exception as e:
             logger.error(f"Failed to update manifest: {e}")
-        
+
         # Also write to source directory if available
         if self.source_dir:
             try:
@@ -273,27 +273,27 @@ class FunctionRegistry:
 class MCPTransport(ABC):
     """
     Abstract base class for MCP transports.
-    
+
     MCP supports multiple transports per the spec:
     - stdio: For subprocess communication
     - HTTP with SSE: For network communication
     """
-    
+
     @abstractmethod
     def send(self, message: Dict[str, Any]) -> None:
         """Send a JSON-RPC message."""
         pass
-    
+
     @abstractmethod
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         """Receive a JSON-RPC message."""
         pass
-    
+
     @abstractmethod
     def close(self) -> None:
         """Close the transport."""
         pass
-    
+
     @property
     @abstractmethod
     def is_open(self) -> bool:
@@ -304,14 +304,14 @@ class MCPTransport(ABC):
 class StdioTransport(MCPTransport):
     """
     Stdio transport for MCP communication with subprocess servers.
-    
+
     Per MCP spec: Uses newline-delimited JSON messages over stdin/stdout.
     """
-    
+
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
         Initialize stdio transport.
-        
+
         Args:
             command: Command to spawn MCP server (e.g., ["node", "server.js"])
             env: Environment variables for the subprocess
@@ -329,7 +329,7 @@ class StdioTransport(MCPTransport):
         self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
-    
+
     def start(self) -> bool:
         """Start the subprocess."""
         try:
@@ -346,11 +346,11 @@ class StdioTransport(MCPTransport):
         except Exception as e:
             logger.error(f"Failed to start MCP server: {e}")
             return False
-    
+
     def send(self, message: Dict[str, Any]) -> None:
         if not self._process or not self._process.stdin:
             raise MCPError("Transport not open")
-        
+
         with self._lock:
             try:
                 data = json.dumps(message) + "\n"
@@ -358,11 +358,11 @@ class StdioTransport(MCPTransport):
                 self._process.stdin.flush()
             except Exception as e:
                 raise MCPError(f"Send failed: {e}")
-    
+
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         if not self._process or not self._process.stdout:
             raise MCPError("Transport not open")
-        
+
         try:
             line = self._process.stdout.readline()
             if not line:
@@ -372,7 +372,7 @@ class StdioTransport(MCPTransport):
             raise MCPError(f"Invalid JSON from server: {e}")
         except Exception as e:
             raise MCPError(f"Receive failed: {e}")
-    
+
     def close(self) -> None:
         if self._process:
             try:
@@ -381,7 +381,7 @@ class StdioTransport(MCPTransport):
             except Exception:
                 self._process.kill()
             self._process = None
-    
+
     @property
     def is_open(self) -> bool:
         return self._process is not None and self._process.poll() is None
@@ -390,67 +390,75 @@ class StdioTransport(MCPTransport):
 class HTTPTransport(MCPTransport):
     """
     HTTP transport for MCP communication.
-    
+
     Per MCP spec:
     - POST requests for client-to-server messages
     - Session management via mcp-session-id header
     - Optional SSE for server-to-client messages
     """
-    
+
     def __init__(
         self,
         url: str,
         timeout: float = 30.0,
-        session_timeout: float = 300.0
+        session_timeout: float = 300.0,
+        verify: Union[bool, str] = True,
+        proxies: Optional[Dict[str, str]] = None
     ):
         """
         Initialize HTTP transport.
-        
+
         Args:
             url: MCP server endpoint URL
             timeout: Request timeout in seconds
             session_timeout: Session idle timeout in seconds
+            verify: SSL verification settings (bool or path to CA bundle)
+            proxies: Proxy settings dictionary mapping protocol to proxy URL
         """
         if not HAS_REQUESTS:
             raise MCPError("HTTP transport requires 'requests' library")
-        
+
         self._url = url
         self._timeout = timeout
         self._session_timeout = session_timeout
+        self._verify = verify
+        self._proxies = proxies
         self._session_id: Optional[str] = None
         self._session_last_used: float = 0.0
         self._closed = False
         self._lock = threading.Lock()
         self._pending_responses: Dict[Union[int, str], Dict[str, Any]] = {}
-    
+
     def send(self, message: Dict[str, Any]) -> None:
         """Send a message and store response for retrieval."""
         if self._closed:
             raise MCPError("Transport is closed")
-        
+
         with self._lock:
             headers = {
                 "Content-Type": "application/json",
                 "Accept": "application/json, text/event-stream"
             }
-            
+
             if self._session_id:
                 headers["mcp-session-id"] = self._session_id
-            
+
             try:
                 response = requests.post(
                     self._url,
                     headers=headers,
                     json=message,
-                    timeout=self._timeout
+                    timeout=self._timeout,
+                    verify=self._verify,
+                    proxies=self._proxies
                 )
-                
+
                 # Capture session ID
                 if "mcp-session-id" in response.headers:
                     self._session_id = response.headers["mcp-session-id"]
-                
+
                 self._session_last_used = time.time()
-                
+
                 # Handle HTTP errors
                 if response.status_code in (400, 401, 403):
                     self._session_id = None
@@ -458,21 +466,21 @@ class HTTPTransport(MCPTransport):
                         f"Session error: HTTP {response.status_code}",
                         code=response.status_code
                     )
-                
+
                 response.raise_for_status()
-                
+
                 # Store response for receive()
                 msg_id = message.get("id")
                 if msg_id is not None:
                     self._pending_responses[msg_id] = response.json()
-                    
+
             except requests.exceptions.ConnectionError:
                 raise MCPError(f"Cannot connect to {self._url}")
             except requests.exceptions.Timeout:
                 raise MCPError(f"Request timed out after {self._timeout}s")
             except requests.exceptions.HTTPError as e:
                 raise MCPError(f"HTTP error: {e}")
-    
+
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         """Receive a pending response."""
         with self._lock:
@@ -480,39 +488,39 @@ class HTTPTransport(MCPTransport):
                 msg_id = next(iter(self._pending_responses))
                 return self._pending_responses.pop(msg_id)
         return None
-    
+
     def send_and_receive(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """Send a request and return the response (synchronous)."""
         self.send(message)
-        
+
         msg_id = message.get("id")
         if msg_id is not None:
             with self._lock:
                 if msg_id in self._pending_responses:
                     return self._pending_responses.pop(msg_id)
-        
+
         raise MCPError("No response received")
-    
+
     def close(self) -> None:
         self._closed = True
         self._session_id = None
         self._pending_responses.clear()
-    
+
     @property
     def is_open(self) -> bool:
         return not self._closed
-    
+
     @property
     def session_id(self) -> Optional[str]:
         return self._session_id
-    
+
     @property
     def is_session_stale(self) -> bool:
         if not self._session_id:
             return True
         idle = time.time() - self._session_last_used
         return idle > self._session_timeout
-    
+
     def refresh_session(self) -> None:
         """Clear session to force re-initialization."""
         self._session_id = None
@@ -531,7 +539,7 @@ class MCPCapabilities:
     prompts: bool = False
     sampling: bool = False
     roots: bool = False
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "MCPCapabilities":
         return cls(
@@ -549,7 +557,7 @@ class MCPServerInfo:
     name: str = ""
     version: str = ""
     capabilities: MCPCapabilities = field(default_factory=MCPCapabilities)
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "MCPServerInfo":
         return cls(
@@ -566,17 +574,17 @@ class MCPServerInfo:
 class MCPSessionManager:
     """
     Manages MCP session connectivity and automatic tool polling.
-    
+
     Features:
     - Automatic session refresh before expiry
     - Periodic polling for new/changed tools
     - Callbacks for tool changes
     - Thread-safe background operation
-    
+
     Example:
         def on_tools_changed(added, removed, all_tools):
             print(f"Tools changed: +{len(added)}, -{len(removed)}")
-        
+
         manager = MCPSessionManager(
             client=mcp_client,
             poll_interval=60,  # Poll every 60 seconds
@@ -587,7 +595,7 @@ class MCPSessionManager:
         # ... later
         manager.stop()
     """
-    
+
     def __init__(
         self,
         client: "MCPClient",
@@ -600,7 +608,7 @@ class MCPSessionManager:
     ):
         """
         Initialize session manager.
-        
+
         Args:
             client: MCPClient instance to manage
             poll_interval: Interval in seconds between tool polls (0 = disabled)
@@ -620,54 +628,54 @@ class MCPSessionManager:
         self._on_session_refreshed = on_session_refreshed
         self._on_error = on_error
         self._custom_poll_fn = custom_poll_fn
-        
+
         self._running = False
         self._thread: Optional[threading.Thread] = None
         self._stop_event = threading.Event()
         self._last_tools: Dict[str, Dict] = {}  # name/id -> item
         self._lock = threading.Lock()
-    
+
     @property
     def is_running(self) -> bool:
         """Check if manager is running."""
         return self._running and self._thread is not None and self._thread.is_alive()
-    
+
     @property
     def known_tools(self) -> List[Dict]:
         """Get last known tools list."""
         with self._lock:
             return list(self._last_tools.values())
-    
+
     def start(self) -> bool:
         """Start the background management thread."""
         if self._running:
             return True
-        
+
         self._running = True
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._run_loop, daemon=True)
         self._thread.start()
         logger.info(f"MCPSessionManager started (poll_interval={self._poll_interval}s)")
         return True
-    
+
     def stop(self, timeout: float = 5.0) -> None:
         """Stop the background management thread."""
         if not self._running:
             return
-        
+
         self._running = False
         self._stop_event.set()
-        
+
         if self._thread:
             self._thread.join(timeout=timeout)
             self._thread = None
-        
+
         logger.info("MCPSessionManager stopped")
-    
+
     def poll_now(self) -> List[Dict]:
         """
         Force an immediate poll for tools.
-        
+
         Returns the current tool list.
         """
         try:
@@ -677,7 +685,7 @@ class MCPSessionManager:
             if self._on_error:
                 self._on_error(e)
             return list(self._last_tools.values())
-    
+
     def refresh_session_now(self) -> bool:
         """Force an immediate session refresh."""
         try:
@@ -687,25 +695,25 @@ class MCPSessionManager:
             if self._on_error:
                 self._on_error(e)
             return False
-    
+
     def _run_loop(self) -> None:
         """Background thread main loop."""
         last_poll_time = 0.0
-        
+
         while self._running and not self._stop_event.is_set():
             try:
                 now = time.time()
-                
+
                 # Check if session needs refresh
                 if self._should_refresh_session():
                     self._refresh_session()
-                
+
                 # Check if we should poll for tools
                 if self._poll_interval > 0:
                     if now - last_poll_time >= self._poll_interval:
                         self._poll_tools()
                         last_poll_time = now
-                
+
             except Exception as e:
                 logger.error(f"MCPSessionManager loop error: {e}")
                 if self._on_error:
@@ -713,25 +721,25 @@ class MCPSessionManager:
                         self._on_error(e)
                     except Exception:
                         logger.error("Error in on_error callback", exc_info=True)
-            
+
             # Sleep in small increments to allow quick shutdown
             self._stop_event.wait(timeout=1.0)
-    
+
     def _should_refresh_session(self) -> bool:
         """Check if session should be refreshed."""
         transport = getattr(self._client, '_transport', None)
         if isinstance(transport, HTTPTransport):
             if not transport.session_id:
                 return True
-            
+
             # Check if session is about to expire
             idle_time = time.time() - transport._session_last_used
             time_until_expiry = transport._session_timeout - idle_time
-            
+
             return time_until_expiry < self._session_refresh_margin
-        
+
         return False
-    
+
     def _refresh_session(self) -> bool:
         """Refresh the MCP session."""
         try:
@@ -740,7 +748,7 @@ class MCPSessionManager:
                 old_session = transport.session_id
                 transport.refresh_session()
                 self._client._initialized = False
-                
+
                 if self._client.connect():
                     logger.info(f"Session refreshed: {old_session[:8] if old_session else 'none'}... -> {transport.session_id[:8] if transport.session_id else 'none'}...")
                     if self._on_session_refreshed:
@@ -752,52 +760,52 @@ class MCPSessionManager:
                 else:
                     logger.error("Failed to reconnect after session refresh")
                     return False
-            
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Session refresh error: {e}")
             return False
-    
+
     def _poll_tools(self) -> List[Dict]:
         """Poll for tools/items and detect changes."""
         if not self._client.is_connected:
             if not self._client.connect():
                 logger.warning("Cannot poll - not connected")
                 return list(self._last_tools.values())
-        
+
         try:
             # Use custom poll function if provided, otherwise use list_tools
             if self._custom_poll_fn:
                 current_items = self._custom_poll_fn(self._client)
             else:
                 current_items = self._client.list_tools()
-            
+
             # Build lookup by 'id' or 'name' (for flexibility)
             def get_key(item):
                 return item.get('id', item.get('name', str(id(item))))
-            
+
             current_items_by_key = {get_key(t): t for t in current_items}
-            
+
             with self._lock:
                 old_keys = set(self._last_tools.keys())
                 new_keys = set(current_items_by_key.keys())
-                
+
                 added_keys = new_keys - old_keys
                 removed_keys = old_keys - new_keys
-                
+
                 if added_keys or removed_keys:
                     added = [current_items_by_key[k] for k in added_keys]
                     removed = [self._last_tools[k] for k in removed_keys]
-                    
+
                     logger.info(f"Items changed: +{len(added)}, -{len(removed)}")
                     if added:
                         logger.info(f"  Added: {list(added_keys)[:5]}{'...' if len(added_keys) > 5 else ''}")
                     if removed:
                         logger.info(f"  Removed: {list(removed_keys)[:5]}{'...' if len(removed_keys) > 5 else ''}")
-                    
+
                     self._last_tools = current_items_by_key
-                    
+
                     if self._on_tools_changed:
                         try:
                             self._on_tools_changed(added, removed, current_items)
@@ -806,9 +814,9 @@ class MCPSessionManager:
                 else:
                     # Still update in case item definitions changed
                     self._last_tools = current_items_by_key
-            
+
             return current_items
-            
+
         except Exception as e:
             logger.error(f"Tool polling error: {e}")
             raise
@@ -817,29 +825,29 @@ class MCPSessionManager:
 class MCPClient:
     """
     MCP (Model Context Protocol) Client.
-    
+
     Implements the client side of MCP specification:
     https://modelcontextprotocol.io/specification/2025-06-18
-    
+
     Lifecycle:
     - initialize: Handshake with server, exchange capabilities
     - initialized: Notification after successful init
     - shutdown: Clean disconnection
-    
+
     Server Features:
     - tools/list, tools/call: Invoke server-side tools
     - resources/list, resources/read: Access server resources
     - prompts/list, prompts/get: Use server prompts
-    
+
     Example:
         mcp = MCPClient(url="http://localhost:9090/mcp")
-        
+
         if mcp.connect():
             tools = mcp.list_tools()
             result = mcp.call_tool("my_tool", {"arg": "value"})
             mcp.disconnect()
     """
-    
+
     def __init__(
         self,
         transport: MCPTransport = None,
@@ -847,18 +855,22 @@ class MCPClient:
         url: str = None,
         timeout: float = 30.0,
         session_timeout: float = 300.0,
+        verify: Union[bool, str] = True,
+        proxies: Optional[Dict[str, str]] = None,
         # Client info
         client_name: str = "G-Assist-Plugin",
         client_version: str = "1.0.0"
     ):
         """
         Initialize MCP client.
-        
+
         Args:
             transport: MCP transport (StdioTransport or HTTPTransport)
             url: HTTP URL (creates HTTPTransport if transport not provided)
             timeout: Request timeout
             session_timeout: Session idle timeout
+            verify: SSL verification settings (bool or path to CA bundle)
+            proxies: Proxy settings dictionary mapping protocol to proxy URL
             client_name: Client name for initialization
             client_version: Client version for initialization
         """
@@ -867,33 +879,33 @@ class MCPClient:
         elif url:
             if not HAS_REQUESTS:
                 raise MCPError("HTTP transport requires 'requests' library")
-            self._transport = HTTPTransport(url, timeout, session_timeout)
+            self._transport = HTTPTransport(url, timeout, session_timeout, verify, proxies)
         else:
             raise ValueError("Must provide either transport or url")
-        
+
         self._client_name = client_name
         self._client_version = client_version
         self._server_info: Optional[MCPServerInfo] = None
         self._initialized = False
         self._request_id = 0
         self._lock = threading.Lock()
-    
+
     @property
     def is_connected(self) -> bool:
         """Check if connected to MCP server."""
         return self._initialized and self._transport.is_open
-    
+
     @property
     def server_info(self) -> Optional[MCPServerInfo]:
         """Get server info from initialization."""
         return self._server_info
-    
+
     def _next_id(self) -> int:
         """Generate next request ID."""
         with self._lock:
             self._request_id += 1
             return self._request_id
-    
+
     def _send_request(self, method: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Send a JSON-RPC request and return the result."""
         request = {
@@ -902,18 +914,18 @@ class MCPClient:
             "method": method,
             "params": params or {}
         }
-        
+
         logger.debug(f"MCP request: {method}")
-        
+
         if isinstance(self._transport, HTTPTransport):
             response = self._transport.send_and_receive(request)
         else:
             self._transport.send(request)
             response = self._transport.receive()
-        
+
         if response is None:
             raise MCPError(f"No response for {method}")
-        
+
         if "error" in response:
             error = response["error"]
             raise MCPError(
@@ -921,9 +933,9 @@ class MCPClient:
                 code=error.get("code", -1),
                 data=error.get("data")
             )
-        
+
         return response.get("result", {})
-    
+
     def _send_notification(self, method: str, params: Dict[str, Any] = None) -> None:
         """Send a JSON-RPC notification (no response expected)."""
         notification = {
@@ -932,23 +944,23 @@ class MCPClient:
             "params": params or {}
         }
         self._transport.send(notification)
-    
+
     # =========================================================================
     # LIFECYCLE
     # =========================================================================
-    
+
     def connect(self, startup_timeout: float = None) -> bool:
         """
         Connect to MCP server and initialize session.
-        
+
         Per MCP spec lifecycle:
         1. Send 'initialize' request with capabilities
         2. Receive server capabilities and info
         3. Send 'notifications/initialized' notification
-        
+
         Args:
             startup_timeout: Optional shorter timeout for startup
-        
+
         Returns:
             True if connected successfully
         """
@@ -958,19 +970,19 @@ class MCPClient:
                 logger.info("Session stale, refreshing...")
                 self._transport.refresh_session()
                 self._initialized = False
-        
+
         if self._initialized:
             return True
-        
+
         try:
             logger.info("MCP: Initializing connection...")
-            
+
             # Start transport if needed (for stdio)
             if isinstance(self._transport, StdioTransport):
                 if not self._transport.is_open:
                     if not self._transport.start():
                         return False
-            
+
             # Send initialize request (per MCP spec)
             result = self._send_request("initialize", {
                 "protocolVersion": MCP_PROTOCOL_VERSION,
@@ -982,30 +994,30 @@ class MCPClient:
                     "version": self._client_version
                 }
             })
-            
+
             # Parse server info and capabilities
             self._server_info = MCPServerInfo.from_dict(result)
             logger.info(
                 f"MCP: Connected to {self._server_info.name} v{self._server_info.version}"
             )
-            
+
             # Send initialized notification (per MCP spec)
             self._send_notification("notifications/initialized")
-            
+
             self._initialized = True
             return True
-            
+
         except MCPError as e:
             logger.error(f"MCP initialization failed: {e}")
             return False
         except Exception as e:
             logger.error(f"MCP connection error: {e}")
             return False
-    
+
     def disconnect(self) -> None:
         """
         Disconnect from MCP server.
-        
+
         Per MCP spec: Send shutdown notification before closing.
         """
         if self._initialized:
@@ -1013,29 +1025,29 @@ class MCPClient:
                 self._send_notification("notifications/shutdown")
             except Exception:
                 logger.debug("Failed to send shutdown notification", exc_info=True)
-        
+
         self._transport.close()
         self._initialized = False
         self._server_info = None
         logger.info("MCP: Disconnected")
-    
+
     # =========================================================================
     # TOOLS (MCP Server Feature)
     # =========================================================================
-    
+
     def list_tools(self) -> List[Dict[str, Any]]:
         """
         List available tools from the server.
-        
+
         Returns:
             List of tool definitions with name, description, inputSchema
         """
         if not self._ensure_connected():
             return []
-        
+
         result = self._send_request("tools/list")
         return result.get("tools", [])
-    
+
     def call_tool(
         self,
         name: str,
@@ -1044,26 +1056,26 @@ class MCPClient:
     ) -> Dict[str, Any]:
         """
         Call a tool on the MCP server.
-        
+
         Args:
             name: Tool name
             arguments: Tool arguments
             retry_on_session_error: Retry with fresh session on 400/401/403
-        
+
         Returns:
             Tool result (extracted from content)
         """
         if not self._ensure_connected():
             raise MCPError("Not connected to MCP server")
-        
+
         try:
             result = self._send_request("tools/call", {
                 "name": name,
                 "arguments": arguments or {}
             })
-            
+
             return self._extract_content(result)
-            
+
         except MCPError as e:
             # Retry on session errors
             if retry_on_session_error and e.code in (400, 401, 403):
@@ -1074,104 +1086,104 @@ class MCPClient:
                 if self.connect():
                     return self.call_tool(name, arguments, retry_on_session_error=False)
             raise
-    
+
     # =========================================================================
     # RESOURCES (MCP Server Feature)
     # =========================================================================
-    
+
     def list_resources(self) -> List[Dict[str, Any]]:
         """
         List available resources from the server.
-        
+
         Returns:
             List of resource definitions with uri, name, description
         """
         if not self._ensure_connected():
             return []
-        
+
         if not self._server_info or not self._server_info.capabilities.resources:
             logger.warning("Server does not support resources")
             return []
-        
+
         result = self._send_request("resources/list")
         return result.get("resources", [])
-    
+
     def read_resource(self, uri: str) -> Dict[str, Any]:
         """
         Read a resource by URI.
-        
+
         Args:
             uri: Resource URI
-        
+
         Returns:
             Resource content
         """
         if not self._ensure_connected():
             raise MCPError("Not connected")
-        
+
         result = self._send_request("resources/read", {"uri": uri})
         return self._extract_content(result)
-    
+
     # =========================================================================
     # PROMPTS (MCP Server Feature)
     # =========================================================================
-    
+
     def list_prompts(self) -> List[Dict[str, Any]]:
         """
         List available prompts from the server.
-        
+
         Returns:
             List of prompt definitions
         """
         if not self._ensure_connected():
             return []
-        
+
         if not self._server_info or not self._server_info.capabilities.prompts:
             logger.warning("Server does not support prompts")
             return []
-        
+
         result = self._send_request("prompts/list")
         return result.get("prompts", [])
-    
+
     def get_prompt(self, name: str, arguments: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Get a prompt by name.
-        
+
         Args:
             name: Prompt name
             arguments: Prompt arguments
-        
+
         Returns:
             Prompt content
         """
         if not self._ensure_connected():
             raise MCPError("Not connected")
-        
+
         result = self._send_request("prompts/get", {
             "name": name,
             "arguments": arguments or {}
         })
         return result
-    
+
     # =========================================================================
     # HELPERS
     # =========================================================================
-    
+
     def _ensure_connected(self) -> bool:
         """Ensure connected, reconnecting if needed."""
         if not self.is_connected:
             return self.connect()
         return True
-    
+
     def _extract_content(self, result: Dict[str, Any]) -> Dict[str, Any]:
         """Extract structured content from MCP response."""
         if not isinstance(result, dict):
             return {"raw": result}
-        
+
         # Try structuredContent first (preferred)
         if "structuredContent" in result:
             return result["structuredContent"]
-        
+
         # Try content array
         if "content" in result:
             for item in result.get("content", []):
@@ -1181,7 +1193,7 @@ class MCPClient:
                         return json.loads(text)
                     except json.JSONDecodeError:
                         return {"text": text}
-        
+
         return result
 
 
@@ -1207,4 +1219,3 @@ __all__ = [
     "FunctionRegistry",
     "sanitize_name",
 ]
-
