@@ -42,7 +42,11 @@ class IntentRouter:
             self._client = genai.Client(api_key=key)
             return ""
         except ImportError:
-            return "❌ SDK missing: google-genai is not installed."
+            return (
+                "❌ 缺少必要的 SDK：未安裝 google-genai。\n\n"
+                "🛠️ 解決步驟：\n"
+                "請在終端機中執行 `pip install google-genai` 來安裝所需套件。"
+            )
         except Exception as e:
             logger.exception("Gemini Engine initialization fault")
             return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
@@ -124,6 +128,7 @@ class IntentRouter:
                     break
             except queue.Empty:
                 logger.error("Intent processing timed out.")
+                plugin_stream_func("\n⏳ 處理逾時，請稍後再試或嘗試簡化您的查詢。")
                 break
 
         return ""
