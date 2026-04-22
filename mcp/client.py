@@ -1,6 +1,6 @@
 import logging
 import shutil
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 
 try:
     from gassist_sdk.mcp import MCPClient, StdioTransport
@@ -33,9 +33,6 @@ class MCPManager:
 
             except Exception as e:
                 logger.error(f"[MCP] {s.get('name', 'Unknown')} initialization failed: {e}")
-
-    def get_client(self, name: str) -> Optional['MCPClient']:
-        return self.clients.get(name)
 
     def call_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         """Routes tool call to the appropriate client."""
