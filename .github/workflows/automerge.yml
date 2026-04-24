@@ -9,10 +9,12 @@ on:
 permissions:
   pull-requests: write
   contents: write
+  issues: write
+  actions: write
 
 jobs:
   test_and_merge:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    if: contains(github.event.pull_request.labels.*.name, 'automerge') && github.event.pull_request.user.login == 'jules'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,12 +32,25 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install Dependencies
-        run: pip install -r requirements.txt pytest
+        run: pip install -r requirements.txt pytest bandit
       - name: Run Tests (ANDON Safety Hook)
         run: pytest tests/
+      - name: Run Security Scan
+        run: bandit -r . -x tests/,system_workflow_agent_v4.0.4/
       - name: Auto-merge
         if: success()
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Handle Consecutive Failures (ANDON)
+        if: failure()
+        run: |
+          FAILURES=$(gh run list --workflow=automerge.yml --status=failure --json databaseId -q 'length')
+          if [ "$FAILURES" -ge 3 ]; then
+            echo "Multiple failures detected. Triggering ANDON mechanism..."
+            gh workflow disable jules_evolution.yml
+            gh issue create --title "🚨 ANDON Alert: Multiple Automerge Failures" --body "The automerge workflow has failed multiple times consecutively. The jules_evolution schedule has been disabled. Human review is required."
+          fi
+        env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
