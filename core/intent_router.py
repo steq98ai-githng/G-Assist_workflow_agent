@@ -45,7 +45,7 @@ class IntentRouter:
             return (
                 "❌ 缺少必要的 SDK：未安裝 google-genai。\n\n"
                 "🛠️ 解決步驟：\n"
-                "請在終端機中執行 `pip install google-genai` 來安裝所需套件。"
+                "請在終端機中執行 pip install google-genai 來安裝所需套件。"
             )
         except Exception as e:
             logger.exception("Gemini Engine initialization fault")
