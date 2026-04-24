@@ -142,6 +142,7 @@ class IntentRouter:
                     break
             except queue.Empty:
                 logger.error("Intent processing timed out.")
+                plugin_stream_func("\n⏳ 處理逾時，請稍後再試或嘗試簡化您的查詢。")
                 break
 
         return ""
