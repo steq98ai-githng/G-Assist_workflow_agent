@@ -146,9 +146,25 @@ def run_agentic_workflow(user_query: str):
                     )
                 with open(GEMINI_KEY_FILE, "r") as f: key = f.read().strip()
             _client = genai.Client(api_key=key)
+        except ImportError:
+            msg = (
+                "❌ 缺少 google-genai SDK 套件。\n\n"
+                "🛠️ 解決步驟：\n"
+                "1. 請開啟命令提示字元 (CMD) 或終端機。\n"
+                "2. 執行指令：`pip install google-genai`。\n"
+                "3. 重新啟動外掛程式。"
+            )
+            plugin.stream(msg)
+            return msg
         except Exception as e:
             logger.exception("Gemini Engine initialization fault")
-            msg = "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
+            msg = (
+                "❌ Gemini 引擎初始化失敗。\n\n"
+                "🛠️ 解決步驟：\n"
+                "1. 請確認您的網路連線是否正常。\n"
+                "2. 檢查 Gemini API Key 是否有效或已超過額度。\n"
+                "3. 查看系統日誌 (log) 以獲取更多錯誤細節。"
+            )
             plugin.stream(msg)
             return msg
 
@@ -219,7 +235,13 @@ def run_agentic_workflow(user_query: str):
             res_q.put(("done", None))
         except Exception as e:
             logger.exception("Error processing intent")
-            res_q.put(("text", "❌ 處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+            res_q.put(("text", (
+                "❌ 處理查詢時發生系統錯誤。\n\n"
+                "🛠️ 解決步驟：\n"
+                "1. 請稍後再試，可能是暫時性的網路不穩定。\n"
+                "2. 如果問題持續發生，請檢查 MCP 伺服器狀態。\n"
+                "3. 查看外掛日誌以獲取詳細錯誤。"
+            )))
             res_q.put(("error", None))
 
     threading.Thread(target=process, daemon=True).start()
