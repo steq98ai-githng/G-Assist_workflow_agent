@@ -31,8 +31,8 @@ class MCPManager:
                 else:
                     logger.error(f"[MCP] {name} initialization failed to return True.")
 
-            except Exception as e:
-                logger.error(f"[MCP] {s.get('name', 'Unknown')} initialization failed: {e}")
+            except Exception:
+                logger.error(f"[MCP] {s.get('name', 'Unknown')} initialization failed", exc_info=True)
 
     def call_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         """Routes tool call to the appropriate client."""
@@ -43,7 +43,7 @@ class MCPManager:
                     if t["name"] == tool_name:
                         res = client.call_tool(tool_name, args)
                         return str(res)
-            except Exception as e:
-                logger.error(f"[MCP] Error calling tool {tool_name}: {e}")
+            except Exception:
+                logger.error(f"[MCP] Error calling tool {tool_name}", exc_info=True)
 
         return f"MCP Tool {tool_name} not found or execution failed."
