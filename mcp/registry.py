@@ -33,7 +33,7 @@ def discover_and_register_tools(mcp_manager, registry) -> List['FunctionDef']:
                 )
                 registry.register(fdef)
                 discovered.append(fdef)
-        except Exception as e:
-            logger.error(f"[MCP] Failed to discover tools for {name}: {e}")
+        except Exception:
+            logger.error(f"[MCP] Failed to discover tools for {name}", exc_info=True)
 
     return discovered

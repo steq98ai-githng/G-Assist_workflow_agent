@@ -46,7 +46,7 @@ def load_config(config_file_path: str) -> Dict[str, Any]:
             else:
                 logger.warning("Config validation failed, using default values where possible.")
 
-        except Exception as e:
-            logger.error(f"Config load error: {e}")
+        except Exception:
+            logger.error("Config load error", exc_info=True)
 
     return cfg

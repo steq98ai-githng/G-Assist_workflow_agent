@@ -43,13 +43,21 @@ class IntentRouter:
             return ""
         except ImportError:
             return (
-                "❌ 缺少必要的 SDK：未安裝 google-genai。\n\n"
+                "❌ 缺少 google-genai SDK 套件。\n\n"
                 "🛠️ 解決步驟：\n"
-                "請在終端機中執行 pip install google-genai 來安裝所需套件。"
+                "1. 請開啟命令提示字元 (CMD) 或終端機。\n"
+                "2. 執行指令：`pip install google-genai`。\n"
+                "3. 重新啟動外掛程式。"
             )
         except Exception as e:
             logger.exception("Gemini Engine initialization fault")
-            return "❌ Gemini Engine Fault. 請查閱系統日誌以獲取詳細資訊。"
+            return (
+                "❌ Gemini 引擎初始化失敗。\n\n"
+                "🛠️ 解決步驟：\n"
+                "1. 請確認您的網路連線是否正常。\n"
+                "2. 檢查 Gemini API Key 是否有效或已超過額度。\n"
+                "3. 查看系統日誌 (log) 以獲取更多錯誤細節。"
+            )
 
     def process_query(self, user_query: str, plugin_stream_func) -> str:
         """Processes a query in a background thread and streams results."""
@@ -113,7 +121,13 @@ class IntentRouter:
 
             except Exception as e:
                 logger.exception("Error processing intent")
-                res_q.put(("text", "❌ 處理查詢時發生系統錯誤，請查閱系統日誌以獲取詳細資訊。"))
+                res_q.put(("text", (
+                    "❌ 處理查詢時發生系統錯誤。\n\n"
+                    "🛠️ 解決步驟：\n"
+                    "1. 請稍後再試，可能是暫時性的網路不穩定。\n"
+                    "2. 如果問題持續發生，請檢查 MCP 伺服器狀態。\n"
+                    "3. 查看外掛日誌以獲取詳細錯誤。"
+                )))
                 res_q.put(("error", None))
 
         threading.Thread(target=process, daemon=True).start()
