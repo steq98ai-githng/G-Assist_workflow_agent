@@ -42,7 +42,7 @@ import json
 import logging
 import os
 import re
-import subprocess
+import subprocess  # nosec B404
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -333,7 +333,7 @@ class StdioTransport(MCPTransport):
     def start(self) -> bool:
         """Start the subprocess."""
         try:
-            self._process = subprocess.Popen(
+            self._process = subprocess.Popen(  # nosec B603
                 self._command,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
@@ -720,7 +720,7 @@ class MCPSessionManager:
                     try:
                         self._on_error(e)
                     except Exception:
-                        pass
+                        logger.error("Error in on_error callback", exc_info=True)
 
             # Sleep in small increments to allow quick shutdown
             self._stop_event.wait(timeout=1.0)
@@ -1024,7 +1024,7 @@ class MCPClient:
             try:
                 self._send_notification("notifications/shutdown")
             except Exception:
-                pass
+                logger.debug("Failed to send shutdown notification", exc_info=True)
 
         self._transport.close()
         self._initialized = False
