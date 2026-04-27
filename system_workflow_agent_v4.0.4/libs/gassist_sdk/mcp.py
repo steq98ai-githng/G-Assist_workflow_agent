@@ -1023,8 +1023,8 @@ class MCPClient:
         if self._initialized:
             try:
                 self._send_notification("notifications/shutdown")
-            except Exception as err:
-                pass
+            except Exception:
+                logger.debug("Failed to send shutdown notification", exc_info=True)
 
         self._transport.close()
         self._initialized = False
