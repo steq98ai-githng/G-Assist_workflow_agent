@@ -211,7 +211,7 @@ class FunctionRegistry:
             with open(self.cache_file, "w") as f:
                 json.dump(cache, f, indent=2)
             logger.info(f"Saved {len(cache)} functions to cache")
-        except Exception as err:
+        except Exception:
             logger.error("Failed to save function cache", exc_info=True)
 
     def load_cache(self) -> Dict[str, Dict[str, Any]]:
