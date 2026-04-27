@@ -13,8 +13,8 @@ if os.path.exists(_libs_path) and _libs_path not in sys.path:
 try:
     from gassist_sdk import Plugin, Context
     from gassist_sdk.mcp import FunctionRegistry
-except ImportError as e:
-    sys.stderr.write(f"V2 SDK Error: {e}\n")
+except ImportError:
+    sys.stderr.write("V2 SDK Error: ImportError occurred\n")
     sys.exit(1)
 
 from config.loader import load_config

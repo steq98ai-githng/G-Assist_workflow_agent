@@ -49,7 +49,7 @@ class IntentRouter:
                 "2. 執行指令：`pip install google-genai`。\n"
                 "3. 重新啟動外掛程式。"
             )
-        except Exception as e:
+        except Exception:
             logger.exception("Gemini Engine initialization fault")
             return (
                 "❌ Gemini 引擎初始化失敗。\n\n"
@@ -119,7 +119,7 @@ class IntentRouter:
 
                 res_q.put(("done", None))
 
-            except Exception as e:
+            except Exception:
                 logger.exception("Error processing intent")
                 res_q.put(("text", (
                     "❌ 處理查詢時發生系統錯誤。\n\n"
