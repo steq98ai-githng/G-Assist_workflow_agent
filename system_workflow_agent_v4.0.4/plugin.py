@@ -28,8 +28,8 @@ if os.path.exists(_libs_path) and _libs_path not in sys.path:
 try:
     from gassist_sdk import Plugin, Context
     from gassist_sdk.mcp import MCPClient, StdioTransport, FunctionRegistry, FunctionDef, sanitize_name
-except ImportError as e:
-    sys.stderr.write(f"V2 SDK Error: {e}\n")
+except ImportError:
+    sys.stderr.write("V2 SDK Error: ImportError occurred\n")
     sys.exit(1)
 
 # --- Path Management (Defensive) ---
@@ -73,7 +73,8 @@ def load_config():
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 cfg.update(json.load(f))
-        except Exception as e: logger.error(f"Config load error: {e}")
+        except Exception:
+            logger.error("Config load error", exc_info=True)
     return cfg
 
 # --- Plugin & Registry ---
@@ -107,8 +108,8 @@ def init_mcp_bridge():
                         registry.register(fdef)
                         discovered.append(fdef)
                     logger.info(f"[MCP] {s['name']} bridge established.")
-            except Exception as e:
-                logger.error(f"[MCP] {s['name']} initialization failed: {e}")
+            except Exception:
+                logger.error(f"[MCP] {s['name']} initialization failed", exc_info=True)
         
         if discovered:
             registry.save_cache()
@@ -157,7 +158,7 @@ def run_agentic_workflow(user_query: str):
             )
             plugin.stream(msg)
             return msg
-        except Exception as e:
+        except Exception:
             logger.exception("Gemini Engine initialization fault")
             msg = (
                 "❌ Gemini 引擎初始化失敗。\n\n"
@@ -201,8 +202,8 @@ def run_agentic_workflow(user_query: str):
                 try:
                     # Map sanitized names to original names for correct routing and execution
                     mcp_tool_map[client] = {sanitize_name(t["name"]): t["name"] for t in client.list_tools()}
-                except Exception as e:
-                    logger.error(f"[MCP] Failed to list tools: {e}")
+                except Exception:
+                    logger.error("[MCP] Failed to list tools", exc_info=True)
                     mcp_tool_map[client] = {}
 
             for _ in range(5):
@@ -234,7 +235,7 @@ def run_agentic_workflow(user_query: str):
                     results.append(Part.from_function_response(name=fn, response={"result": res_val}))
                 contents.append(Content(role="user", parts=results))
             res_q.put(("done", None))
-        except Exception as e:
+        except Exception:
             logger.exception("Error processing intent")
             res_q.put(("text", (
                 "❌ 處理查詢時發生系統錯誤。\n\n"

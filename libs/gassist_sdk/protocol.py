@@ -88,8 +88,8 @@ class Protocol:
                 # Parse JSON
                 try:
                     data = json.loads(payload.decode("utf-8"))
-                except json.JSONDecodeError as e:
-                    raise ProtocolError(f"Invalid JSON: {e}")
+                except json.JSONDecodeError:
+                    raise ProtocolError("Invalid JSON received")
                 
                 # Validate JSON-RPC
                 if not isinstance(data, dict):
@@ -108,8 +108,8 @@ class Protocol:
                 raise
             except ProtocolError:
                 raise
-            except Exception as e:
-                raise ProtocolError(f"Read error: {e}")
+            except Exception:
+                raise ProtocolError("Read error occurred")
     
     def write_message(self, message: Dict[str, Any]) -> bool:
         """
@@ -149,8 +149,8 @@ class Protocol:
                 # Write to stdout
                 return self._write_bytes(full_message)
                 
-            except Exception as e:
-                logger.error(f"Write error: {e}")
+            except Exception:
+                logger.error("Write error occurred", exc_info=True)
                 return False
     
     def send_response(self, response: JsonRpcResponse) -> bool:

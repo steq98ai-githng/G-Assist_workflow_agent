@@ -211,8 +211,8 @@ class FunctionRegistry:
             with open(self.cache_file, "w") as f:
                 json.dump(cache, f, indent=2)
             logger.info(f"Saved {len(cache)} functions to cache")
-        except Exception as e:
-            logger.error(f"Failed to save function cache: {e}")
+        except Exception:
+            logger.error("Failed to save function cache", exc_info=True)
 
     def load_cache(self) -> Dict[str, Dict[str, Any]]:
         """Load functions from cache file."""
@@ -220,8 +220,8 @@ class FunctionRegistry:
             if os.path.isfile(self.cache_file):
                 with open(self.cache_file, "r") as f:
                     return json.load(f)
-        except Exception as e:
-            logger.error(f"Failed to load function cache: {e}")
+        except Exception as err:
+            logger.error("Failed to load function cache", exc_info=True)
         return {}
 
     def update_manifest(self, version: str = "1.0.0", description: str = ""):
@@ -252,8 +252,8 @@ class FunctionRegistry:
             with open(self.manifest_file, "w") as f:
                 json.dump(manifest, f, indent=2)
             logger.info(f"Updated manifest at {self.manifest_file} with {len(functions)} functions")
-        except Exception as e:
-            logger.error(f"Failed to update manifest: {e}")
+        except Exception as err:
+            logger.error("Failed to update manifest", exc_info=True)
 
         # Also write to source directory if available
         if self.source_dir:
@@ -262,8 +262,8 @@ class FunctionRegistry:
                 with open(source_manifest, "w") as f:
                     json.dump(manifest, f, indent=2)
                 logger.info(f"Updated source manifest at {source_manifest}")
-            except Exception as e:
-                logger.debug(f"Could not update source manifest: {e}")
+            except Exception as err:
+                logger.debug("Could not update source manifest", exc_info=True)
 
 
 # =============================================================================
@@ -343,8 +343,8 @@ class StdioTransport(MCPTransport):
             )
             logger.info(f"Started MCP server: {' '.join(self._command)}")
             return True
-        except Exception as e:
-            logger.error(f"Failed to start MCP server: {e}")
+        except Exception as err:
+            logger.error("Failed to start MCP server", exc_info=True)
             return False
 
     def send(self, message: Dict[str, Any]) -> None:
@@ -356,8 +356,8 @@ class StdioTransport(MCPTransport):
                 data = json.dumps(message) + "\n"
                 self._process.stdin.write(data.encode("utf-8"))
                 self._process.stdin.flush()
-            except Exception as e:
-                raise MCPError(f"Send failed: {e}")
+            except Exception as err:
+                raise MCPError("Send failed")
 
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         if not self._process or not self._process.stdout:
@@ -368,17 +368,17 @@ class StdioTransport(MCPTransport):
             if not line:
                 return None
             return json.loads(line.decode("utf-8"))
-        except json.JSONDecodeError as e:
-            raise MCPError(f"Invalid JSON from server: {e}")
-        except Exception as e:
-            raise MCPError(f"Receive failed: {e}")
+        except json.JSONDecodeError:
+            raise MCPError("Invalid JSON from server")
+        except Exception as err:
+            raise MCPError("Receive failed")
 
     def close(self) -> None:
         if self._process:
             try:
                 self._process.terminate()
                 self._process.wait(timeout=5)
-            except Exception:
+            except Exception as err:
                 self._process.kill()
             self._process = None
 
@@ -475,11 +475,11 @@ class HTTPTransport(MCPTransport):
                     self._pending_responses[msg_id] = response.json()
 
             except requests.exceptions.ConnectionError:
-                raise MCPError(f"Cannot connect to {self._url}")
+                raise MCPError("Cannot connect to server")
             except requests.exceptions.Timeout:
-                raise MCPError(f"Request timed out after {self._timeout}s")
-            except requests.exceptions.HTTPError as e:
-                raise MCPError(f"HTTP error: {e}")
+                raise MCPError("Request timed out")
+            except requests.exceptions.HTTPError:
+                raise MCPError("HTTP error occurred")
 
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         """Receive a pending response."""
@@ -680,20 +680,20 @@ class MCPSessionManager:
         """
         try:
             return self._poll_tools()
-        except Exception as e:
-            logger.error(f"Poll failed: {e}")
+        except Exception as err:
+            logger.error("Poll failed", exc_info=True)
             if self._on_error:
-                self._on_error(e)
+                self._on_error(err)
             return list(self._last_tools.values())
 
     def refresh_session_now(self) -> bool:
         """Force an immediate session refresh."""
         try:
             return self._refresh_session()
-        except Exception as e:
-            logger.error(f"Session refresh failed: {e}")
+        except Exception as err:
+            logger.error("Session refresh failed", exc_info=True)
             if self._on_error:
-                self._on_error(e)
+                self._on_error(err)
             return False
 
     def _run_loop(self) -> None:
@@ -714,12 +714,12 @@ class MCPSessionManager:
                         self._poll_tools()
                         last_poll_time = now
 
-            except Exception as e:
-                logger.error(f"MCPSessionManager loop error: {e}")
+            except Exception as err:
+                logger.error("MCPSessionManager loop error", exc_info=True)
                 if self._on_error:
                     try:
-                        self._on_error(e)
-                    except Exception:
+                        self._on_error(err)
+                    except Exception as err:
                         logger.error("Error in on_error callback", exc_info=True)
 
             # Sleep in small increments to allow quick shutdown
@@ -754,8 +754,8 @@ class MCPSessionManager:
                     if self._on_session_refreshed:
                         try:
                             self._on_session_refreshed()
-                        except Exception as e:
-                            logger.error(f"Session refresh callback error: {e}")
+                        except Exception as err:
+                            logger.error("Session refresh callback error", exc_info=True)
                     return True
                 else:
                     logger.error("Failed to reconnect after session refresh")
@@ -763,8 +763,8 @@ class MCPSessionManager:
 
             return True
 
-        except Exception as e:
-            logger.error(f"Session refresh error: {e}")
+        except Exception as err:
+            logger.error("Session refresh error", exc_info=True)
             return False
 
     def _poll_tools(self) -> List[Dict]:
@@ -809,16 +809,16 @@ class MCPSessionManager:
                     if self._on_tools_changed:
                         try:
                             self._on_tools_changed(added, removed, current_items)
-                        except Exception as e:
-                            logger.error(f"Tools changed callback error: {e}")
+                        except Exception as err:
+                            logger.error("Tools changed callback error", exc_info=True)
                 else:
                     # Still update in case item definitions changed
                     self._last_tools = current_items_by_key
 
             return current_items
 
-        except Exception as e:
-            logger.error(f"Tool polling error: {e}")
+        except Exception as err:
+            logger.error("Tool polling error", exc_info=True)
             raise
 
 
@@ -1007,11 +1007,11 @@ class MCPClient:
             self._initialized = True
             return True
 
-        except MCPError as e:
-            logger.error(f"MCP initialization failed: {e}")
+        except MCPError as err:
+            logger.error("MCP initialization failed", exc_info=True)
             return False
-        except Exception as e:
-            logger.error(f"MCP connection error: {e}")
+        except Exception as err:
+            logger.error("MCP connection error", exc_info=True)
             return False
 
     def disconnect(self) -> None:
@@ -1023,7 +1023,7 @@ class MCPClient:
         if self._initialized:
             try:
                 self._send_notification("notifications/shutdown")
-            except Exception:
+            except Exception as err:
                 logger.debug("Failed to send shutdown notification", exc_info=True)
 
         self._transport.close()
@@ -1076,10 +1076,10 @@ class MCPClient:
 
             return self._extract_content(result)
 
-        except MCPError as e:
+        except MCPError as err:
             # Retry on session errors
-            if retry_on_session_error and e.code in (400, 401, 403):
-                logger.warning(f"Session error, reconnecting: {e}")
+            if retry_on_session_error and err.code in (400, 401, 403):
+                logger.warning("Session error, reconnecting", exc_info=True)
                 self._initialized = False
                 if isinstance(self._transport, HTTPTransport):
                     self._transport.refresh_session()
