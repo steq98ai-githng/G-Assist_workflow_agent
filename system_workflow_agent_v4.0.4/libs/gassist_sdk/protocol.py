@@ -129,7 +129,7 @@ class Protocol:
                 # Serialize to JSON - use default handler to catch non-serializable objects
                 def safe_serialize(obj):
                     """Handle non-serializable objects by converting to string."""
-                    logger.debug(f"NON-SERIALIZABLE OBJECT: type={type(obj).__name__}")
+                    logger.warning(f"NON-SERIALIZABLE OBJECT: type={type(obj).__name__}")
                     return f"<non-serializable: {type(obj).__name__}>"
                 
                 payload = json.dumps(message, ensure_ascii=False, default=safe_serialize).encode("utf-8")
