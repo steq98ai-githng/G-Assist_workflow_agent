@@ -42,7 +42,8 @@ def _get_secure_data_dir() -> str:
         try:
             os.makedirs(primary, exist_ok=True)
             return primary
-        except Exception: pass
+        except Exception:
+            logging.getLogger(__name__).debug("Failed to create primary directory", exc_info=True)
     
     fallback = os.path.join(_plugin_dir, "agent_data")
     os.makedirs(fallback, exist_ok=True)

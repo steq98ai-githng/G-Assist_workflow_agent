@@ -23,11 +23,11 @@ class TestStdioTransport(unittest.TestCase):
             os.environ.clear()
             os.environ["SAFE_VAR"] = "safe_value"
             os.environ["PATH"] = "/usr/bin"
-            os.environ["MY_API_KEY"] = "super_secret"
-            os.environ["GITHUB_TOKEN"] = "token_123"
-            os.environ["DB_PASSWORD"] = "password456"
-            os.environ["AWS_SECRET_ACCESS_KEY"] = "aws_secret"
-            os.environ["USER_CREDENTIALS"] = "creds_789"
+            os.environ["MY_API_KEY"] = "super_secret"  # nosec B105
+            os.environ["GITHUB_TOKEN"] = "token_123"  # nosec B105
+            os.environ["DB_PASSWORD"] = "password456"  # nosec B105
+            os.environ["AWS_SECRET_ACCESS_KEY"] = "aws_secret"  # nosec B105
+            os.environ["USER_CREDENTIALS"] = "creds_789"  # nosec B105
 
             # Explicitly passed safe env override
             explicit_env = {"EXPLICIT_VAR": "explicit_value"}

@@ -42,7 +42,7 @@ import json
 import logging
 import os
 import re
-import subprocess
+import subprocess  # nosec B404
 import threading
 import time
 from abc import ABC, abstractmethod
@@ -333,7 +333,7 @@ class StdioTransport(MCPTransport):
     def start(self) -> bool:
         """Start the subprocess."""
         try:
-            self._process = subprocess.Popen(
+            self._process = subprocess.Popen(  # nosec B603
                 self._command,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
