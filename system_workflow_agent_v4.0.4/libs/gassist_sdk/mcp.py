@@ -719,8 +719,8 @@ class MCPSessionManager:
                 if self._on_error:
                     try:
                         self._on_error(err)
-                    except Exception as err:
-                        pass
+                    except Exception:
+                        logger.error("Error in on_error callback", exc_info=True)
 
             # Sleep in small increments to allow quick shutdown
             self._stop_event.wait(timeout=1.0)
