@@ -142,7 +142,13 @@ class IntentRouter:
                     break
             except queue.Empty:
                 logger.error("Intent processing timed out.")
-                plugin_stream_func("\n⏳ 處理逾時，請稍後再試或嘗試簡化您的查詢。")
+                plugin_stream_func(
+                    "\n⏳ 處理逾時。\n\n"
+                    "🛠️ 解決步驟：\n"
+                    "1. 請稍後再試，可能是模型回應時間較長。\n"
+                    "2. 嘗試簡化您的查詢，或拆分成更小的任務。\n"
+                    "3. 檢查網路連線狀態。"
+                )
                 break
 
         return ""
