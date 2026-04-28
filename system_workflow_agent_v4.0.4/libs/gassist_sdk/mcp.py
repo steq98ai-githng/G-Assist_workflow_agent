@@ -211,7 +211,7 @@ class FunctionRegistry:
             with open(self.cache_file, "w") as f:
                 json.dump(cache, f, indent=2)
             logger.info(f"Saved {len(cache)} functions to cache")
-        except Exception as err:
+        except Exception:
             logger.error("Failed to save function cache", exc_info=True)
 
     def load_cache(self) -> Dict[str, Dict[str, Any]]:
@@ -220,7 +220,7 @@ class FunctionRegistry:
             if os.path.isfile(self.cache_file):
                 with open(self.cache_file, "r") as f:
                     return json.load(f)
-        except Exception as err:
+        except Exception:
             logger.error("Failed to load function cache", exc_info=True)
         return {}
 
@@ -252,7 +252,7 @@ class FunctionRegistry:
             with open(self.manifest_file, "w") as f:
                 json.dump(manifest, f, indent=2)
             logger.info(f"Updated manifest at {self.manifest_file} with {len(functions)} functions")
-        except Exception as err:
+        except Exception:
             logger.error("Failed to update manifest", exc_info=True)
 
         # Also write to source directory if available
@@ -262,7 +262,7 @@ class FunctionRegistry:
                 with open(source_manifest, "w") as f:
                     json.dump(manifest, f, indent=2)
                 logger.info(f"Updated source manifest at {source_manifest}")
-            except Exception as err:
+            except Exception:
                 logger.debug("Could not update source manifest", exc_info=True)
 
 
@@ -343,7 +343,7 @@ class StdioTransport(MCPTransport):
             )
             logger.info(f"Started MCP server: {' '.join(self._command)}")
             return True
-        except Exception as err:
+        except Exception:
             logger.error("Failed to start MCP server", exc_info=True)
             return False
 
@@ -356,7 +356,8 @@ class StdioTransport(MCPTransport):
                 data = json.dumps(message) + "\n"
                 self._process.stdin.write(data.encode("utf-8"))
                 self._process.stdin.flush()
-            except Exception as err:
+            except Exception:
+                logger.error("Send failed", exc_info=True)
                 raise MCPError("Send failed")
 
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
@@ -368,9 +369,10 @@ class StdioTransport(MCPTransport):
             if not line:
                 return None
             return json.loads(line.decode("utf-8"))
-        except json.JSONDecodeError:
-            raise MCPError("Invalid JSON from server")
-        except Exception as err:
+        except json.JSONDecodeError as e:
+            raise MCPError(f"Invalid JSON from server: {e}")
+        except Exception:
+            logger.error("Receive failed", exc_info=True)
             raise MCPError("Receive failed")
 
     def close(self) -> None:
@@ -680,20 +682,20 @@ class MCPSessionManager:
         """
         try:
             return self._poll_tools()
-        except Exception as err:
+        except Exception as poll_err:
             logger.error("Poll failed", exc_info=True)
             if self._on_error:
-                self._on_error(err)
+                self._on_error(poll_err)
             return list(self._last_tools.values())
 
     def refresh_session_now(self) -> bool:
         """Force an immediate session refresh."""
         try:
             return self._refresh_session()
-        except Exception as err:
+        except Exception as refresh_err:
             logger.error("Session refresh failed", exc_info=True)
             if self._on_error:
-                self._on_error(err)
+                self._on_error(refresh_err)
             return False
 
     def _run_loop(self) -> None:
@@ -714,11 +716,11 @@ class MCPSessionManager:
                         self._poll_tools()
                         last_poll_time = now
 
-            except Exception as err:
+            except Exception as loop_err:
                 logger.error("MCPSessionManager loop error", exc_info=True)
                 if self._on_error:
                     try:
-                        self._on_error(err)
+                        self._on_error(loop_err)
                     except Exception:
                         logger.error("Error in on_error callback", exc_info=True)
 
@@ -754,7 +756,7 @@ class MCPSessionManager:
                     if self._on_session_refreshed:
                         try:
                             self._on_session_refreshed()
-                        except Exception as err:
+                        except Exception:
                             logger.error("Session refresh callback error", exc_info=True)
                     return True
                 else:
@@ -763,7 +765,7 @@ class MCPSessionManager:
 
             return True
 
-        except Exception as err:
+        except Exception:
             logger.error("Session refresh error", exc_info=True)
             return False
 
@@ -809,7 +811,7 @@ class MCPSessionManager:
                     if self._on_tools_changed:
                         try:
                             self._on_tools_changed(added, removed, current_items)
-                        except Exception as err:
+                        except Exception:
                             logger.error("Tools changed callback error", exc_info=True)
                 else:
                     # Still update in case item definitions changed
@@ -817,7 +819,7 @@ class MCPSessionManager:
 
             return current_items
 
-        except Exception as err:
+        except Exception:
             logger.error("Tool polling error", exc_info=True)
             raise
 
@@ -1010,7 +1012,7 @@ class MCPClient:
         except MCPError as err:
             logger.error("MCP initialization failed", exc_info=True)
             return False
-        except Exception as err:
+        except Exception:
             logger.error("MCP connection error", exc_info=True)
             return False
 

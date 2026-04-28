@@ -73,8 +73,7 @@ def load_config():
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 cfg.update(json.load(f))
-        except Exception:
-            logger.error("Config load error", exc_info=True)
+        except Exception: logger.error("Config load error", exc_info=True)
     return cfg
 
 # --- Plugin & Registry ---
