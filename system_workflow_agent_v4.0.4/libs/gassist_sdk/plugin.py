@@ -215,7 +215,7 @@ class Plugin:
             self._run_loop()
         except ConnectionClosed:
             logger.info("Connection closed, shutting down")
-        except Exception as e:
+        except Exception:
             logger.error("Unexpected error", exc_info=True)
         finally:
             self._running = False
@@ -236,7 +236,7 @@ class Plugin:
             except ProtocolError as e:
                 logger.error(f"Protocol error: {e}")
                 # Continue trying to read next message
-            except Exception as e:
+            except Exception:
                 logger.error("Error processing message", exc_info=True)
     
     def _handle_request(self, request: JsonRpcRequest):
@@ -347,7 +347,7 @@ class Plugin:
             # Send completion
             self._send_complete(request.id, True, result, self._keep_session)
             
-        except Exception as e:
+        except Exception:
             logger.error("Command execution error", exc_info=True)
             self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Command execution failed. See logs for details.")
         finally:
@@ -382,7 +382,7 @@ class Plugin:
                 # No handler - just echo back
                 self._send_complete(request.id, True, f"Received: {content}", False)
                 
-        except Exception as e:
+        except Exception:
             logger.error("Input handling error", exc_info=True)
             self._send_error(request.id, ErrorCode.PLUGIN_ERROR, "Input handling failed. See logs for details.")
         finally:
@@ -721,8 +721,8 @@ class MCPPlugin(Plugin):
                     self._registry.save_cache()
                     self._registry.update_manifest(self.version, self.description)
                     logger.info(f"Updated manifest with {len(functions)} functions")
-        except Exception as e:
-            logger.error(f"Failed to update functions after tools change: {e}")
+        except Exception:
+            logger.error("Failed to update functions after tools change", exc_info=True)
     
     def _on_session_refreshed(self):
         """Handle session refresh event."""
@@ -764,8 +764,8 @@ class MCPPlugin(Plugin):
             else:
                 logger.info("No functions discovered")
                 
-        except Exception as e:
-            logger.error(f"Discovery failed: {e} - loading from cache")
+        except Exception:
+            logger.error("Discovery failed - loading from cache", exc_info=True)
             self._load_cached_functions()
     
     def _register_discovered_functions(self, functions: List["FunctionDef"]):
@@ -822,7 +822,7 @@ class MCPPlugin(Plugin):
                                 executor = self._executors.get(fn_name)
                                 if executor:
                                     return executor()
-                        except Exception as e:
+                        except Exception:
                             logger.error("Error during lazy reconnection or execution", exc_info=True)
                             return "Command execution failed. See logs for details."
                     return f"Function '{fn_name}' - MCP server unavailable"
@@ -893,7 +893,7 @@ class MCPPlugin(Plugin):
                 self._registry.update_manifest(self.version, self.description)
                 return len(functions)
                 
-        except Exception as e:
-            logger.error(f"Re-discovery failed: {e}")
+        except Exception:
+            logger.error("Re-discovery failed", exc_info=True)
         
         return 0

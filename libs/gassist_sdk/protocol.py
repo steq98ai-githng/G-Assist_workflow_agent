@@ -108,8 +108,9 @@ class Protocol:
                 raise
             except ProtocolError:
                 raise
-            except Exception as e:
-                raise ProtocolError(f"Read error: {e}")
+            except Exception:
+                logger.error("Read error", exc_info=True)
+                raise ProtocolError("Read error")
     
     def write_message(self, message: Dict[str, Any]) -> bool:
         """
@@ -149,8 +150,8 @@ class Protocol:
                 # Write to stdout
                 return self._write_bytes(full_message)
                 
-            except Exception as e:
-                logger.error(f"Write error: {e}")
+            except Exception:
+                logger.error("Write error", exc_info=True)
                 return False
     
     def send_response(self, response: JsonRpcResponse) -> bool:
