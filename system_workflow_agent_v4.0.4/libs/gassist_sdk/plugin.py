@@ -233,8 +233,8 @@ class Plugin:
                 
             except ConnectionClosed:
                 break
-            except ProtocolError as e:
-                logger.error(f"Protocol error: {e}")
+            except ProtocolError:
+                logger.error("Protocol error", exc_info=True)
                 # Continue trying to read next message
             except Exception:
                 logger.error("Error processing message", exc_info=True)

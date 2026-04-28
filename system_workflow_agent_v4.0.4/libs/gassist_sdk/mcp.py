@@ -380,7 +380,7 @@ class StdioTransport(MCPTransport):
             try:
                 self._process.terminate()
                 self._process.wait(timeout=5)
-            except Exception:
+            except Exception as err:
                 self._process.kill()
             self._process = None
 
@@ -477,11 +477,11 @@ class HTTPTransport(MCPTransport):
                     self._pending_responses[msg_id] = response.json()
 
             except requests.exceptions.ConnectionError:
-                raise MCPError(f"Cannot connect to {self._url}")
+                raise MCPError("Cannot connect to server")
             except requests.exceptions.Timeout:
-                raise MCPError(f"Request timed out after {self._timeout}s")
-            except requests.exceptions.HTTPError as e:
-                raise MCPError(f"HTTP error: {e}")
+                raise MCPError("Request timed out")
+            except requests.exceptions.HTTPError:
+                raise MCPError("HTTP error occurred")
 
     def receive(self, timeout: float = None) -> Optional[Dict[str, Any]]:
         """Receive a pending response."""
@@ -1009,8 +1009,8 @@ class MCPClient:
             self._initialized = True
             return True
 
-        except MCPError as e:
-            logger.error(f"MCP initialization failed: {e}")
+        except MCPError as err:
+            logger.error("MCP initialization failed", exc_info=True)
             return False
         except Exception:
             logger.error("MCP connection error", exc_info=True)
@@ -1078,10 +1078,10 @@ class MCPClient:
 
             return self._extract_content(result)
 
-        except MCPError as e:
+        except MCPError as err:
             # Retry on session errors
-            if retry_on_session_error and e.code in (400, 401, 403):
-                logger.warning(f"Session error, reconnecting: {e}")
+            if retry_on_session_error and err.code in (400, 401, 403):
+                logger.warning("Session error, reconnecting", exc_info=True)
                 self._initialized = False
                 if isinstance(self._transport, HTTPTransport):
                     self._transport.refresh_session()

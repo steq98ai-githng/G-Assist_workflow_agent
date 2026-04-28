@@ -88,8 +88,8 @@ class Protocol:
                 # Parse JSON
                 try:
                     data = json.loads(payload.decode("utf-8"))
-                except json.JSONDecodeError as e:
-                    raise ProtocolError(f"Invalid JSON: {e}")
+                except json.JSONDecodeError:
+                    raise ProtocolError("Invalid JSON received")
                 
                 # Validate JSON-RPC
                 if not isinstance(data, dict):
