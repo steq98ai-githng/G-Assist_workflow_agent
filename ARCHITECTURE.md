@@ -83,7 +83,7 @@ The agent acts as an **MCP Client**, connecting to **MCP Servers**.
 ## ⚙️ Configuration (`config/`)
 - Uses `config/schema.json` for validation.
 - Supports dynamic merging of default settings with user-defined `config.json`.
-- Gemini API keys are loaded from environment variables or `gemini-api.key` files.
+- Gemini API keys are loaded from environment variables or gemini-api.key files (ensure this file is added to your .gitignore).
 
 
 ## 📄 License
