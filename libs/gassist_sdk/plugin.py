@@ -358,7 +358,7 @@ class Plugin:
         params = request.params or {}
         content = params.get("content", "")
         
-        logger.info(f"Received user input: {content[:50]}...")
+        logger.debug(f"Received user input of length {len(content)}")
         
         # First, send acknowledgment
         ack_response = JsonRpcResponse.success(
