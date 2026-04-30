@@ -78,7 +78,7 @@ class PluginRuntime:
     def _setup_commands(self):
         @self.plugin.command("system_workflow_agent")
         def handle_agent(user_input: str = None, context: Context = None):
-            if not user_input:
+            if not user_input or not user_input.strip():
                 self.plugin.set_keep_session(True)
                 return (
                     "💠 **Antigravity DevCore System Agent v4.0.4**\n"
@@ -89,8 +89,10 @@ class PluginRuntime:
                     "- 「查詢最近的 Git 提交紀錄」"
                 )
 
-            self.intent_router.process_query(user_input, self.plugin.stream)
+            error = self.intent_router.process_query(user_input, self.plugin.stream)
             self.plugin.set_keep_session(True)
+            if error:
+                return error
             return ""
 
     def run(self):
