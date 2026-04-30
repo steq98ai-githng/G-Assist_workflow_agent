@@ -77,7 +77,7 @@ The plugin communicates with the host NVIDIA app using a custom JSON-RPC 2.0 pro
 
 ### Model Context Protocol (MCP)
 The agent acts as an **MCP Client**, connecting to **MCP Servers**.
-- Support for `stdio` (subprocesses) and `http` (remote servers) transports.
+- Support for stdio (subprocesses) transport.
 - Dynamic tool discovery allows the agent to expand its capabilities without code changes.
 
 ## ⚙️ Configuration (`config/`)
