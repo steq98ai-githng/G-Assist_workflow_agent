@@ -247,7 +247,19 @@ def run_agentic_workflow(user_query: str):
             m, d = res_q.get(timeout=120)
             if m == "text": plugin.stream(d)
             elif m in ("done", "error"): break
-        except: break
+        except queue.Empty:
+            logger.error("Intent processing timed out.")
+            plugin.stream(
+                "\n⏳ 處理逾時。\n\n"
+                "🛠️ 解決步驟：\n"
+                "1. 請稍後再試，可能是模型回應時間較長。\n"
+                "2. 嘗試簡化您的查詢，或拆分成更小的任務。\n"
+                "3. 檢查網路連線狀態。\n"
+                "4. 若問題持續發生，請嘗試重新啟動外掛程式。"
+            )
+            break
+        except Exception:
+            break
 
 @plugin.command("system_workflow_agent")
 def handle_agent(user_input: str = None, context: Context = None):
