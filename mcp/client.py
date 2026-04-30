@@ -42,12 +42,13 @@ class MCPManager:
 
     def call_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         """Routes tool call to the appropriate client."""
-        for client, tools in self.tool_maps.items():
+        for name, tools in self.tool_maps.items():
             if tool_name in tools:
                 try:
+                    client = self.clients[name]
                     res = client.call_tool(tool_name, args)
                     return str(res)
                 except Exception:
-                    logger.error(f"[MCP] Error calling tool {tool_name}", exc_info=True)
+                    logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
 
         return f"MCP Tool {tool_name} not found or execution failed."
