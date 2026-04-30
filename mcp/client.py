@@ -29,9 +29,10 @@ class MCPManager:
                 if client.initialize():
                     self.clients[name] = client
                     try:
-                        self.tool_maps[client] = {t["name"]: t["name"] for t in client.list_tools()}
+                        self.tool_maps[name] = {t["name"]: t["name"] for t in client.list_tools()}
                     except Exception:
-                        self.tool_maps[client] = {}
+                        logger.error(f"[MCP] Failed to list tools for {name}", exc_info=True)
+                        self.tool_maps[name] = {}
                     logger.info(f"[MCP] {name} bridge established.")
                 else:
                     logger.error(f"[MCP] {name} initialization failed to return True.")
