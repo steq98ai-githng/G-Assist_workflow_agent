@@ -17,3 +17,8 @@
 **Vulnerability:** The `HTTPTransport` class used by the `MCPClient` in the `gassist_sdk` did not expose options for configuring SSL verification (`verify`) or proxy settings (`proxies`) when making HTTP POST requests using the `requests` library.
 **Learning:** Hardcoding SSL verification to default or missing out on exposing these configurations can prevent HTTP clients from correctly functioning in heavily regulated enterprise networks or could leave them vulnerable to man-in-the-middle attacks if SSL checks are bypassed elsewhere. Always provide the ability to strictly enforce SSL verification and to configure proxies securely.
 **Prevention:** Always ensure that HTTP clients (such as those using `requests`) explicitly support and expose `verify` and `proxies` configuration parameters to satisfy security audits and provide robust connectivity.
+
+## 2025-02-28 - Prevent Information Disclosure in Input Logging
+**Vulnerability:** The `_handle_input` method in `libs/gassist_sdk/plugin.py` logged the first 50 bytes of the raw user input at the `INFO` level. If a user pasted sensitive data (like an API key, password, or PII) at the beginning of their input, this sensitive data would be written to the system logs, posing an information disclosure risk.
+**Learning:** Any code that logs generic objects or communication payloads must assume the data may contain sensitive information and sanitize it accordingly.
+**Prevention:** Never log raw data payloads blindly. Instead, log metadata (such as the length of the content). Ensure debug information containing potential secrets is strictly localized to `DEBUG` or `TRACE` log levels and preferably masked.
