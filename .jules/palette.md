@@ -6,6 +6,6 @@
 **Learning:** In a text-based, terminal-like interface, error messages that simply state the problem (e.g., "Missing SDK") are unhelpful since the user cannot click a button to resolve it. Actionable steps are critical for UX here.
 **Action:** Always format error messages to include a specific, copy-pasteable command or actionable step using the "🛠️ 解決步驟：" prefix.
 
-## 2024-05-18 - Fix Silent Failure UX in Text-based UI
-**Learning:** Silent failures in text-based conversational interfaces are especially jarring because users lack visual cues like loading spinners or error toasts. It's critical to ensure synchronous validation and initialization errors from underlying components bubble up correctly to the user.
-**Action:** When integrating subcomponents (e.g., intent routers) in conversational handlers, always capture and return their error states instead of defaulting to empty responses.
+## 2025-03-05 - Avoid Silent Timeouts in Streaming Interfaces
+**Learning:** When using a text-based conversational interface, a silent timeout (e.g., silently breaking a stream listening loop) leaves the user confused about the system state.
+**Action:** Always intercept timeouts explicitly and provide an actionable error message guiding the user on how to retry or troubleshoot the connection.
