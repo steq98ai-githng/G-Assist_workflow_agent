@@ -43,7 +43,7 @@ graph TD
 - **`core/event_bus.py`**: Provides a simple pub/sub mechanism for decoupled internal communication.
 
 ### 2. Tooling & MCP (`mcp/`)
-- **`mcp/client.py`**: Implements the `MCPManager` which manages multiple MCP clients (Stdio or HTTP) and handles tool routing.
+- **mcp/client.py**: Implements the MCPManager which manages multiple MCP clients (Stdio) and handles tool routing.
 - **`mcp/registry.py`**: Handles dynamic discovery of tools from MCP servers and registers them as G-Assist functions so the G-Assist platform (and Gemini) "sees" them.
 
 ### 3. Multi-modal Capabilities (`vision/`)
