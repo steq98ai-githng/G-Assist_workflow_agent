@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Any
+from typing import Callable, Dict, List
 
 class EventBus:
     """A simple event bus for decoupled communication."""
