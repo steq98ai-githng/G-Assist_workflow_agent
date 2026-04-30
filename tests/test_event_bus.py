@@ -1,11 +1,5 @@
 import unittest
 from unittest.mock import MagicMock
-import sys
-import os
-
-# Add the project root to the sys.path to allow importing core modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from core.event_bus import EventBus
 
 class TestEventBus(unittest.TestCase):
