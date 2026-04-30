@@ -84,6 +84,7 @@ registry = FunctionRegistry(PLUGIN_NAME, plugin_dir=DATA_DIR, source_dir=_plugin
 # AGENTIC MCP BRIDGE (v4.0.4 Refined)
 # ============================================================================
 _mcp_clients: Dict[str, MCPClient] = {}
+_mcp_tool_maps: Dict[str, Dict[str, str]] = {}
 
 def init_mcp_bridge():
     config = load_config()
@@ -97,6 +98,7 @@ def init_mcp_bridge():
                 if client.initialize():
                     _mcp_clients[s["name"]] = client
                     tools = client.list_tools()
+                    _mcp_tool_maps[s["name"]] = {sanitize_name(t["name"]): t["name"] for t in tools}
                     for t in tools:
                         fdef = FunctionDef(
                             name=sanitize_name(t["name"]),
@@ -196,14 +198,7 @@ def run_agentic_workflow(user_query: str):
                 Content(role="user", parts=[Part.from_text(user_query)])
             ]
 
-            mcp_tool_map = {}
-            for client in _mcp_clients.values():
-                try:
-                    # Map sanitized names to original names for correct routing and execution
-                    mcp_tool_map[client] = {sanitize_name(t["name"]): t["name"] for t in client.list_tools()}
-                except Exception:
-                    logger.error("[MCP] Failed to list tools", exc_info=True)
-                    mcp_tool_map[client] = {}
+            mcp_tool_map = _mcp_tool_maps.copy()
 
             for _ in range(5):
                 resp = _client.models.generate_content(model=cfg["gemini_model"], contents=contents, config=GenerateContentConfig(tools=tools))
@@ -225,10 +220,10 @@ def run_agentic_workflow(user_query: str):
                     else:
                         # MCP Tool Routing
                         res_val = "MCP Link Error."
-                        for client, mcp_tools in mcp_tool_map.items():
-                            if fn in mcp_tools:
+                        for client_name, client in _mcp_clients.items():
+                            if client_name in _mcp_tool_maps and fn in _mcp_tool_maps[client_name]:
                                 # Use the original tool name required by the MCP server
-                                r = client.call_tool(mcp_tools[fn], dict(call.args))
+                                r = client.call_tool(_mcp_tool_maps[client_name][fn], dict(call.args))
                                 res_val = str(r); break
                     
                     results.append(Part.from_function_response(name=fn, response={"result": res_val}))

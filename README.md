@@ -13,7 +13,9 @@
 System Workflow Agent 是一款符合 NVIDIA 2025/2026 最新外掛規範 (Protocol V2) 的 G-Assist Plugin。
 它將原本以遊戲輔助為主的 G-Assist，升級為具備「首席系統工程師」職責的生產力工具，讓您可以直接用流利的**繁體中文**命令您的 RTX PC。
 
-## 🏗️ 架構圖
+## 🏗️ 架構概覽
+
+本專案採用高度模組化的設計，以確保在 G-Assist 高頻率呼叫下的穩定性。
 
 ```text
 G-Assist System Workflow Agent Architecture
@@ -22,22 +24,24 @@ G-Assist System Workflow Agent Architecture
            │
            ▼ (Protocol V2 / JSON-RPC)
     ┌─────────────┐
-    │ plugin.py   │ ─── Entry Point
+    │ plugin.py   │ ─── 進入點 (Entry Point)
     └─────────────┘
            │
            ▼
-  [ core/plugin_runtime.py ] ── Manages Lifecycle & No Global States
+  [ core/plugin_runtime.py ] ── 生命週期管理與無狀態核心
            │
-           ├──► [ config/loader.py ] ── Validates & Loads config.json
+           ├──► [ config/loader.py ] ── 設定檔載入與驗證
            │
-           ├──► [ core/intent_router.py ] ── Gemini 2.0 Reasoning & Dispatch
+           ├──► [ core/intent_router.py ] ── Gemini 2.0 推理與指令分發
            │        │
-           │        ├──► [ vision/diagnostic.py ] ── Multimodal Diagnostics
+           │        ├──► [ vision/diagnostic.py ] ── 多模態視覺診斷
            │        │
-           │        └──► [ mcp/client.py & mcp/registry.py ] ── Dynamic Tools
+           │        └──► [ mcp/client.py & mcp/registry.py ] ── 動態工具整合
            │
-           └──► [ core/event_bus.py ] ── Decoupled internal events
+           └──► [ core/event_bus.py ] ── 解耦合內部事件匯流排
 ```
+
+> 🔍 欲了解更多詳細技術細節，請參閱 [ARCHITECTURE.md](./ARCHITECTURE.md)。
 
 ## ✨ 核心能力與特色
 
