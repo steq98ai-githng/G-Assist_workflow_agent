@@ -92,6 +92,7 @@ class PluginRuntime:
             error = self.intent_router.process_query(user_input, self.plugin.stream)
             self.plugin.set_keep_session(True)
             if error:
+                self.plugin.set_keep_session(False)
                 return error
             return ""
 
