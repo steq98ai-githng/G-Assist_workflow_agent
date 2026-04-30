@@ -9,6 +9,7 @@ import tracemalloc
 import collections
 
 def main() -> None:
+    random.seed(42)
     tracemalloc.start()
 
     # 1. Generate 500 lines of synthetic text
