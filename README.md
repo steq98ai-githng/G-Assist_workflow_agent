@@ -1,5 +1,5 @@
-# 💠 System Workflow Agent v4.1.0
-This document describes the high-level architecture of the **System Workflow Agent** v4.1.0, a specialized plugin for NVIDIA Project G-Assist.
+# 💠 System Workflow Agent v4.1.1
+This document describes the high-level architecture of the **System Workflow Agent** v4.1.1, a specialized plugin for NVIDIA Project G-Assist.
 
 
 > 專為 **NVIDIA Project G-Assist** 打造的「中文大腦」與「系統工程師代理」。
@@ -7,7 +7,7 @@ This document describes the high-level architecture of the **System Workflow Age
 
 ![G-Assist](https://img.shields.io/badge/Project-G--Assist-76B900?logo=nvidia)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
-![Version](https://img.shields.io/badge/Version-v4.1.0-orange)
+![Version](https://img.shields.io/badge/Version-v4.1.1-orange)
 ![Protocol](https://img.shields.io/badge/Protocol-V2-brightgreen)
 
 ## 🎯 這是什麼？
@@ -89,3 +89,13 @@ pytest tests/
 ## 📄 授權條款
 
 本專案採用 **Apache License 2.0** 授權。
+
+## 🙏 致謝與衍生作品聲明 (Acknowledgements & Derivative Works)
+
+本專案是一個基於 **[NVIDIA Project G-Assist](https://github.com/NVIDIA/G-Assist)** 官方範本與 SDK 開發的衍生作品。
+
+- **原始專案**: [NVIDIA/G-Assist](https://github.com/NVIDIA/G-Assist)
+- **授權說明**: 本專案遵循 Apache License 2.0，並保留原始 SDK 程式碼中所有版權與授權聲明。
+- **聲明**: 感謝 NVIDIA 團隊提供的卓越工具與開源生態系統，讓本外掛能為繁體中文用戶提供更優質的系統代理體驗。
+
+---

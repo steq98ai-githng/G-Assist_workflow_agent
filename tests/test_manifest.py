@@ -17,7 +17,7 @@ class TestManifest(unittest.TestCase):
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
 
-        self.assertEqual(manifest["version"], "4.1.0")
+        self.assertEqual(manifest["version"], "4.1.1")
         self.assertEqual(manifest["protocol_version"], "2.0")
         self.assertIn("functions", manifest)
         self.assertTrue(len(manifest["functions"]) > 0)

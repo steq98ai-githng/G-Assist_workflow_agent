@@ -1,7 +1,7 @@
 {
   "manifestVersion": 1,
   "name": "system_workflow_agent",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Agentic 系統工作流助理 - 整合 GitKraken、MCP 工具、系統監控與 AI 自動化 Code Review",
   "executable": "plugin.py",
   "persistent": true,

@@ -1,7 +1,7 @@
-## 2025-05-14 - License Transition to Apache 2.0
+## 2025-05-14 - RSI: Attribution and Legal Compliance
 
-**Vulnerability:** N/A (Compliance/Legal update)
+**Vulnerability:** N/A (Legal Compliance)
 
-**Learning:** When transitioning licenses, it is critical to search for all occurrences of the old license in documentation, manifests, and source code headers (SPDX identifiers).
+**Learning:** When building on open-source projects, explicit acknowledgments and derivative work statements are essential for repository cleanliness and legal respect. This should be a standard part of any "Recursive Self-Improvement" cycle.
 
-**Prevention:** Use automated scripts to verify license headers across the repository.
+**Prevention:** Maintain a dedicated "Acknowledgements" section in the README that links back to original upstream repositories.

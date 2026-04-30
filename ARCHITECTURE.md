@@ -1,6 +1,6 @@
 # 🏛️ System Workflow Agent Architecture
 
-This document describes the high-level architecture of the **System Workflow Agent** v4.1.0, a specialized plugin for NVIDIA Project G-Assist.
+This document describes the high-level architecture of the **System Workflow Agent** v4.1.1, a specialized plugin for NVIDIA Project G-Assist.
 
 ## 🏗️ System Overview
 
@@ -89,3 +89,7 @@ The agent acts as an **MCP Client**, connecting to **MCP Servers**.
 ## 📄 License
 
 This project is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
+
+## 🙏 Acknowledgements
+
+The **System Workflow Agent** is a derivative work of the **[NVIDIA Project G-Assist](https://github.com/NVIDIA/G-Assist)** open-source project. We gratefully acknowledge the foundations provided by the NVIDIA team, including the Protocol V2 specification and the Python SDK core.

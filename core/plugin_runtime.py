@@ -54,7 +54,7 @@ class PluginRuntime:
         self.logger = logging.getLogger(__name__)
 
         self.config = load_config(self.config_file)
-        self.plugin = Plugin(name=PLUGIN_NAME, version="4.1.0", description="Professional Workflow Specialist")
+        self.plugin = Plugin(name=PLUGIN_NAME, version="4.1.1", description="Professional Workflow Specialist")
         self.registry = FunctionRegistry(PLUGIN_NAME, plugin_dir=self.data_dir, source_dir=_plugin_dir)
 
         self.event_bus = EventBus()
@@ -81,7 +81,7 @@ class PluginRuntime:
             if not user_input:
                 self.plugin.set_keep_session(True)
                 return (
-                    "💠 **Antigravity DevCore System Agent v4.1.0**\n"
+                    "💠 **Antigravity DevCore System Agent v4.1.1**\n"
                     "工程指令就緒，請輸入查詢事項。\n\n"
                     "💡 提示：您可以試著問我：\n"
                     "- 「幫我診斷目前的系統狀態」\n"
