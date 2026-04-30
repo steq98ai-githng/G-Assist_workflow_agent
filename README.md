@@ -86,4 +86,4 @@ pytest tests/
 
 ## 📄 授權條款
 
-本專案採用 **MIT License** 授權。
+本專案採用 **Apache License 2.0** 授權。

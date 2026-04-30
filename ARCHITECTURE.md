@@ -43,7 +43,7 @@ graph TD
 - **`core/event_bus.py`**: Provides a simple pub/sub mechanism for decoupled internal communication.
 
 ### 2. Tooling & MCP (`mcp/`)
-- **mcp/client.py**: Implements the MCPManager which manages multiple MCP clients (Stdio) and handles tool routing.
+- **`mcp/client.py`**: Implements the `MCPManager` which manages multiple MCP clients (Stdio or HTTP) and handles tool routing.
 - **`mcp/registry.py`**: Handles dynamic discovery of tools from MCP servers and registers them as G-Assist functions so the G-Assist platform (and Gemini) "sees" them.
 
 ### 3. Multi-modal Capabilities (`vision/`)
@@ -77,10 +77,15 @@ The plugin communicates with the host NVIDIA app using a custom JSON-RPC 2.0 pro
 
 ### Model Context Protocol (MCP)
 The agent acts as an **MCP Client**, connecting to **MCP Servers**.
-- Support for stdio (subprocesses) transport.
+- Support for `stdio` (subprocesses) and `http` (remote servers) transports.
 - Dynamic tool discovery allows the agent to expand its capabilities without code changes.
 
 ## ⚙️ Configuration (`config/`)
-- Uses internal validation logic in config/loader.py for configuration integrity.
+- Uses `config/schema.json` for validation.
 - Supports dynamic merging of default settings with user-defined `config.json`.
-- Gemini API keys are loaded from environment variables or `gemini-api.key` files.
+- Gemini API keys are loaded from environment variables or gemini-api.key files (ensure this file is added to your .gitignore).
+
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
