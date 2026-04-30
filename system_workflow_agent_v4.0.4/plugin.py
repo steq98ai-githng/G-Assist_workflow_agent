@@ -84,7 +84,7 @@ registry = FunctionRegistry(PLUGIN_NAME, plugin_dir=DATA_DIR, source_dir=_plugin
 # AGENTIC MCP BRIDGE (v4.0.4 Refined)
 # ============================================================================
 _mcp_clients: Dict[str, MCPClient] = {}
-_mcp_tool_maps: Dict[MCPClient, Dict[str, str]] = {}
+_mcp_tool_maps: Dict[str, Dict[str, str]] = {}
 
 def init_mcp_bridge():
     config = load_config()
