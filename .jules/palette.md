@@ -1,7 +1,5 @@
-## 2025-02-27 - Text-based UI Conversational UX
-**Learning:** This application uses a text-based conversational interface (G-Assist streaming) rather than a traditional visual DOM (HTML/CSS). Standard web accessibility (ARIA labels, DOM focus) does not apply. Instead, UX improvements must focus on conversational empty states, actionable error messages, and prompt suggestions.
-**Action:** When working on text-based agents, prioritize adding example commands to empty states and ensuring text outputs guide the user effectively.
+## 2025-05-14 - RSI: Automated Repository Refactoring
 
-## 2025-02-27 - Actionable Conversational Errors
-**Learning:** In a text-based, terminal-like interface, error messages that simply state the problem (e.g., "Missing SDK") are unhelpful since the user cannot click a button to resolve it. Actionable steps are critical for UX here.
-**Action:** Always format error messages to include a specific, copy-pasteable command or actionable step using the "🛠️ 解決步驟：" prefix.
+**Learning:** Automated "Recursive Self-Improvement" (RSI) requires strict version control synchronization and careful cleanup of legacy artifacts to maintain a single source of truth. Version bumping must be applied to all metadata, headers, and UI strings simultaneously.
+
+**Action:** Implement a standard RSI cycle that includes (1) Version calculation, (2) Redundancy scanning, (3) Atomic version updates, (4) Documentation header enforcement, and (5) Stability verification via pytest.

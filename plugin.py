@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-System Workflow Agent v4.0.4 (Final Structural Fortification)
+System Workflow Agent v4.1.0 (Final Structural Fortification)
 Based on NVIDIA G-Assist Protocol V2 & DevCore Vault 技能組
 """
 

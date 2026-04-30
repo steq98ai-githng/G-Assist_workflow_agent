@@ -1,19 +1,7 @@
-## 2024-05-14 - Prevent credential leakage to child processes
-**Vulnerability:** The `StdioTransport` class in `libs/gassist_sdk/mcp.py` was passing the entire `os.environ` directly to the spawned MCP server subprocess `subprocess.Popen`. This means any sensitive environment variables (like `GEMINI_API_KEY`, `GITHUB_TOKEN`, etc.) present in the host environment were being passed to potentially third-party external MCP server processes, creating a credential leakage vulnerability.
-**Learning:** Subprocesses inherit the environment of their parent process by default (or when explicitly passed `os.environ`), which can inadvertently expose sensitive credentials. This is particularly dangerous when spawning third-party tools or external scripts.
-**Prevention:** Always sanitize the environment variables passed to subprocesses. Filter out known sensitive keys (e.g., matching keywords like API_KEY, TOKEN, SECRET, PASSWORD, CREDENTIAL) before passing the environment dict to `subprocess.Popen`.
+## 2025-05-14 - License Transition to Apache 2.0
 
-## 2024-05-24 - Prevent Information Disclosure in Protocol Logging
-**Vulnerability:** The SDK protocol handling in `libs/gassist_sdk/protocol.py` logged the first 500 bytes of the raw payload at the `INFO` level. If an application utilizes this SDK to send sensitive payloads (such as LLM prompts containing API keys, PII, passwords, or secure tokens), this sensitive data would be logged directly to the disk, posing an information disclosure risk.
-**Learning:** Application logs are a common attack vector for discovering sensitive information. Any code that logs generic objects, arguments, or communication payloads must assume the data may contain sensitive information and sanitize it accordingly.
-**Prevention:** Never log raw data payloads blindly. Instead, log metadata (such as the size of the payload, message IDs, or the time taken). Ensure debug information containing potential secrets is strictly localized to `DEBUG` or `TRACE` log levels and preferably masked.
+**Vulnerability:** N/A (Compliance/Legal update)
 
-## 2024-05-25 - Prevent Information Disclosure in Error Handling
-**Vulnerability:** The application was catching exceptions broadly (`except Exception as e:`) and directly passing the exception string `str(e)` back to the user interface and via the protocol (`JsonRpcResponse.make_error`). This meant that if an internal component, like the Gemini API client or an MCP tool, encountered an error (such as a connection failure, authentication failure, or malformed internal data), the raw stack trace or internal error details (which could include sensitive paths, keys, or configurations) would be exposed to the end user or client application.
-**Learning:** Returning raw exception strings or stack traces directly to untrusted boundaries (like an external API, a UI, or an RPC client) is a classic Information Disclosure vulnerability. Error messages should be generic and user-friendly, while detailed diagnostic information should be securely logged internally.
-**Prevention:** Catch exceptions securely by logging the full detail (`logger.error(..., exc_info=True)`) and returning only a generic error message (e.g., "Command execution failed. See logs for details.") to the user or protocol boundary.
+**Learning:** When transitioning licenses, it is critical to search for all occurrences of the old license in documentation, manifests, and source code headers (SPDX identifiers).
 
-## 2025-02-28 - Enforce SSL verification and proxy configuration for HTTP clients
-**Vulnerability:** The `HTTPTransport` class used by the `MCPClient` in the `gassist_sdk` did not expose options for configuring SSL verification (`verify`) or proxy settings (`proxies`) when making HTTP POST requests using the `requests` library.
-**Learning:** Hardcoding SSL verification to default or missing out on exposing these configurations can prevent HTTP clients from correctly functioning in heavily regulated enterprise networks or could leave them vulnerable to man-in-the-middle attacks if SSL checks are bypassed elsewhere. Always provide the ability to strictly enforce SSL verification and to configure proxies securely.
-**Prevention:** Always ensure that HTTP clients (such as those using `requests`) explicitly support and expose `verify` and `proxies` configuration parameters to satisfy security audits and provide robust connectivity.
+**Prevention:** Use automated scripts to verify license headers across the repository.
