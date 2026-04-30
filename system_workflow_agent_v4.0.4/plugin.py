@@ -259,6 +259,7 @@ def run_agentic_workflow(user_query: str):
             )
             break
         except Exception:
+            logger.exception("Unexpected error in streaming loop")
             break
 
 @plugin.command("system_workflow_agent")
