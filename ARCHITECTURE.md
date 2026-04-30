@@ -81,6 +81,6 @@ The agent acts as an **MCP Client**, connecting to **MCP Servers**.
 - Dynamic tool discovery allows the agent to expand its capabilities without code changes.
 
 ## ⚙️ Configuration (`config/`)
-- Uses `config/schema.json` for validation.
+- Uses internal validation logic in config/loader.py for configuration integrity.
 - Supports dynamic merging of default settings with user-defined `config.json`.
 - Gemini API keys are loaded from environment variables or `gemini-api.key` files.
