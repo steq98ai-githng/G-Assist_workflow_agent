@@ -4,7 +4,9 @@ import os
 import sys
 
 # Project convention for module resolution
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from core.event_bus import EventBus
 
