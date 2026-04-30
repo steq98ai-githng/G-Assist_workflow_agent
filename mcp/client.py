@@ -28,13 +28,11 @@ class MCPManager:
 
                 if client.initialize():
                     self.clients[name] = client
-                    self.tool_maps[name] = {}
                     try:
-                        tools = client.list_tools()
-                        for t in tools:
-                            self.tool_maps[name][t["name"]] = t["name"]
+                        self.tool_maps[name] = {t["name"]: t["name"] for t in client.list_tools()}
                     except Exception:
-                        logger.error(f"[MCP] Failed to list tools for {name} during initialization", exc_info=True)
+                        logger.error(f"[MCP] Failed to list tools for {name}", exc_info=True)
+                        self.tool_maps[name] = {}
                     logger.info(f"[MCP] {name} bridge established.")
                 else:
                     logger.error(f"[MCP] {name} initialization failed to return True.")
@@ -44,12 +42,13 @@ class MCPManager:
 
     def call_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         """Routes tool call to the appropriate client."""
-        for name, client in self.clients.items():
-            try:
-                if name in self.tool_maps and tool_name in self.tool_maps[name]:
+        for name, tools in self.tool_maps.items():
+            if tool_name in tools:
+                try:
+                    client = self.clients[name]
                     res = client.call_tool(tool_name, args)
                     return str(res)
-            except Exception:
-                logger.error(f"[MCP] Error calling tool {tool_name} on {name}", exc_info=True)
+                except Exception:
+                    logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
 
         return f"MCP Tool {tool_name} not found or execution failed."

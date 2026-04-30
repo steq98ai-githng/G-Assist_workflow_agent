@@ -96,25 +96,19 @@ def init_mcp_bridge():
                 transport = StdioTransport(command=[cmd] + s["args"])
                 client = MCPClient(transport)
                 if client.initialize():
-                    client_name = s["name"]
-                    _mcp_clients[client_name] = client
-                    _mcp_tool_maps[client_name] = {}
-                    try:
-                        tools = client.list_tools()
-                        for t in tools:
-                            s_name = sanitize_name(t["name"])
-                            _mcp_tool_maps[client_name][s_name] = t["name"]
-                            fdef = FunctionDef(
-                                name=s_name,
-                                description=t.get("description", ""),
-                                properties=t.get("inputSchema", {}).get("properties", {}),
-                                required=t.get("inputSchema", {}).get("required", [])
-                            )
-                            registry.register(fdef)
-                            discovered.append(fdef)
-                    except Exception:
-                        logger.error(f"[MCP] Failed to list tools for {client_name}", exc_info=True)
-                    logger.info(f"[MCP] {client_name} bridge established.")
+                    _mcp_clients[s["name"]] = client
+                    tools = client.list_tools()
+                    _mcp_tool_maps[s["name"]] = {sanitize_name(t["name"]): t["name"] for t in tools}
+                    for t in tools:
+                        fdef = FunctionDef(
+                            name=sanitize_name(t["name"]),
+                            description=t.get("description", ""),
+                            properties=t.get("inputSchema", {}).get("properties", {}),
+                            required=t.get("inputSchema", {}).get("required", [])
+                        )
+                        registry.register(fdef)
+                        discovered.append(fdef)
+                    logger.info(f"[MCP] {s['name']} bridge established.")
             except Exception:
                 logger.error(f"[MCP] {s['name']} initialization failed", exc_info=True)
         
@@ -203,6 +197,8 @@ def run_agentic_workflow(user_query: str):
                 Content(role="system", parts=[Part.from_text(system_prompt)]),
                 Content(role="user", parts=[Part.from_text(user_query)])
             ]
+
+            mcp_tool_map = _mcp_tool_maps.copy()
 
             for _ in range(5):
                 resp = _client.models.generate_content(model=cfg["gemini_model"], contents=contents, config=GenerateContentConfig(tools=tools))
