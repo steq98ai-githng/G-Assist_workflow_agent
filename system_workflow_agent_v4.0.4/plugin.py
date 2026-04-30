@@ -98,7 +98,7 @@ def init_mcp_bridge():
                 if client.initialize():
                     _mcp_clients[s["name"]] = client
                     tools = client.list_tools()
-                    _mcp_tool_maps[client] = {sanitize_name(t["name"]): t["name"] for t in tools}
+                    _mcp_tool_maps[s["name"]] = {sanitize_name(t["name"]): t["name"] for t in tools}
                     for t in tools:
                         fdef = FunctionDef(
                             name=sanitize_name(t["name"]),
