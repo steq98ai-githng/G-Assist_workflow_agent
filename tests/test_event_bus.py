@@ -29,10 +29,10 @@ class TestEventBus(unittest.TestCase):
         self.bus.subscribe("event", callback1)
         self.bus.subscribe("event", callback2)
 
-        self.bus.publish("event")
+        self.bus.publish("event", "test_arg", key="test_val")
 
-        callback1.assert_called_once()
-        callback2.assert_called_once()
+        callback1.assert_called_once_with("test_arg", key="test_val")
+        callback2.assert_called_once_with("test_arg", key="test_val")
 
     def test_publish_no_subscribers(self):
         # Should not raise exception
