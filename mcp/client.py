@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class MCPManager:
     def __init__(self):
         self.clients: Dict[str, 'MCPClient'] = {}
-        self.tool_maps: Dict['MCPClient', Dict[str, str]] = {}
+        self.tool_maps: Dict[str, Dict[str, str]] = {}
 
     def start_clients(self, servers_config: List[Dict[str, Any]]) -> None:
         """Starts MCP clients based on configuration."""
