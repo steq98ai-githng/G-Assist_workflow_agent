@@ -68,3 +68,17 @@ class TestIntentRouter(unittest.TestCase):
             error = router._init_gemini()
             self.assertIn("Gemini 引擎初始化失敗", error)
             self.assertIn("🛠️ 解決步驟：", error)
+
+    def test_process_query_too_long(self):
+        """驗證查詢內容過長時的處理邏輯。"""
+        config = {"gemini_model": "test-model"}
+        mcp_manager = MagicMock()
+        registry = MagicMock()
+
+        router = IntentRouter(config, mcp_manager, registry)
+        long_query = "A" * (router.MAX_QUERY_LENGTH + 1)
+
+        # We don't need to mock genai here because the length check happens before initialization
+        error = router.process_query(long_query, MagicMock())
+        self.assertIn("查詢內容過長", error)
+        self.assertIn(f"上限 {router.MAX_QUERY_LENGTH:,} 字元", error)
