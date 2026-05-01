@@ -12,6 +12,7 @@
 #### 1. 系統控制與狀態
 * 「請幫我初始化系統模組」
 * 「目前的系統狀態如何？」
+* 「列出目前可用的工具」
 * 「幫我執行系統視覺診斷，檢查桌面有沒有異常錯誤訊息」
 
 #### 2. 開發者工作流 (GitKraken MCP)
@@ -25,7 +26,7 @@
 
 ## ⚙️ 故障排除
 
-* **Q: Agent 回覆「MCP Link Error」怎麼辦？**
+* **Q: Agent 回覆「找不到 MCP 工具」或「MCP 連線錯誤」怎麼辦？**
   * A: 請確認您的電腦是否已安裝 Node.js，並且 `npx` 指令可以在命令提示字元中正常執行。預設的 GitKraken MCP 需要 Node.js 環境。
 * **Q: Agent 提示缺少 Gemini API Key？**
   * A: 請前往外掛安裝目錄 (`C:\ProgramData\NVIDIA Corporation\nvtopps\rise\plugins\system_workflow_agent`)，確認 `gemini-api.key` 檔案存在且內容正確無換行。

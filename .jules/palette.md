@@ -9,3 +9,7 @@
 ## 2025-03-05 - Avoid Silent Timeouts in Streaming Interfaces
 **Learning:** When using a text-based conversational interface, a silent timeout (e.g., silently breaking a stream listening loop) leaves the user confused about the system state.
 **Action:** Always intercept timeouts explicitly and provide an actionable error message guiding the user on how to retry or troubleshoot the connection.
+
+## 2025-05-15 - Handle Whitespace as Empty Input
+**Learning:** In text-based conversational interfaces, users may occasionally send whitespace-only strings. If these are not explicitly handled as "empty," the agent might attempt to process them as valid queries, leading to confusing model responses or errors.
+**Action:** Always use `.strip()` when validating user input to ensure whitespace-only strings correctly trigger helpful system prompts or empty state suggestions.
