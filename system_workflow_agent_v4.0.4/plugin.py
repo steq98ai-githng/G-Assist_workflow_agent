@@ -231,7 +231,7 @@ def run_agentic_workflow(user_query: str):
                                 try:
                                     # Use the original tool name required by the MCP server
                                     r = client.call_tool(_mcp_tool_maps[client_name][fn], dict(call.args))
-                                    res_val = str(r); break
+                                    res_val = r; break
                                 except Exception:
                                     logger.error(f"Error calling MCP tool {fn}", exc_info=True)
                                     res_val = (
