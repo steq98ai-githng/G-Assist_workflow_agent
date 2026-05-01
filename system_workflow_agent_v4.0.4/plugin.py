@@ -60,6 +60,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+MAX_QUERY_LENGTH = 10000  # 0.1% of 10MB MAX_MESSAGE_SIZE
+
 DEFAULT_CONFIG = {
     "gemini_model": "gemini-2.0-flash",
     "mcp_servers": [
@@ -133,6 +135,15 @@ def capture_diagnostic_snapshot():
 _client = None
 
 def run_agentic_workflow(user_query: str):
+    if len(user_query) > MAX_QUERY_LENGTH:
+        plugin.stream(
+            f"❌ 查詢內容過長 (超過 {MAX_QUERY_LENGTH} 字)。\n\n"
+            "🛠️ 解決步驟：\n"
+            "1. 請簡化您的查詢，或拆分成更小的任務。\n"
+            "2. 避免在單一查詢中貼上大量代碼或日誌。"
+        )
+        return
+
     global _client
     if not _client:
         try:
