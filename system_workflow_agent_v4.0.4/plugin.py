@@ -219,12 +219,28 @@ def run_agentic_workflow(user_query: str):
                         res_val = capture_diagnostic_snapshot()
                     else:
                         # MCP Tool Routing
-                        res_val = "MCP Link Error."
+                        res_val = (
+                            f"❌ MCP 連線錯誤：找不到工具 `{fn}`。\n\n"
+                            "🛠️ 解決步驟：\n"
+                            "1. 請檢查 MCP 伺服器 (如 GitKraken) 是否已啟動。\n"
+                            "2. 嘗試重新啟動外掛程式。\n"
+                            "3. 檢查網路連線或 `npx` 指令是否可用。"
+                        )
                         for client_name, client in _mcp_clients.items():
                             if client_name in _mcp_tool_maps and fn in _mcp_tool_maps[client_name]:
-                                # Use the original tool name required by the MCP server
-                                r = client.call_tool(_mcp_tool_maps[client_name][fn], dict(call.args))
-                                res_val = str(r); break
+                                try:
+                                    # Use the original tool name required by the MCP server
+                                    r = client.call_tool(_mcp_tool_maps[client_name][fn], dict(call.args))
+                                    res_val = str(r); break
+                                except Exception:
+                                    logger.error(f"Error calling MCP tool {fn}", exc_info=True)
+                                    res_val = (
+                                        f"❌ MCP 工具 `{fn}` 執行時發生錯誤。\n\n"
+                                        "🛠️ 解決步驟：\n"
+                                        "1. 請確認 MCP 伺服器狀態。\n"
+                                        "2. 查看外掛日誌獲取詳細資訊。"
+                                    )
+                                    break
                     
                     results.append(Part.from_function_response(name=fn, response={"result": res_val}))
                 contents.append(Content(role="user", parts=results))
@@ -264,7 +280,7 @@ def run_agentic_workflow(user_query: str):
 
 @plugin.command("system_workflow_agent")
 def handle_agent(user_input: str = None, context: Context = None):
-    if not user_input:
+    if not user_input or not user_input.strip():
         plugin.set_keep_session(True)
         return (
             "💠 **Antigravity DevCore System Agent v4.0.4**\n"
