@@ -60,7 +60,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-MAX_QUERY_LENGTH = 10000  # 0.1% of 10MB MAX_MESSAGE_SIZE
+MAX_QUERY_LENGTH = 100000  # 1% of 10MB MAX_MESSAGE_SIZE
 
 DEFAULT_CONFIG = {
     "gemini_model": "gemini-2.0-flash",
