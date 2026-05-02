@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+MAX_QUERY_LENGTH = 100000  # 1% of 10MB MAX_MESSAGE_SIZE
+
 class IntentRouter:
     # Maximum length for user queries to prevent resource exhaustion (0.1% of MAX_MESSAGE_SIZE)
     MAX_QUERY_LENGTH = 10000
@@ -64,13 +66,12 @@ class IntentRouter:
 
     def process_query(self, user_query: str, plugin_stream_func) -> str:
         """Processes a query in a background thread and streams results."""
-        if len(user_query) > self.MAX_QUERY_LENGTH:
-            logger.warning(f"Query length exceeded: {len(user_query)} characters (limit: {self.MAX_QUERY_LENGTH})")
+        if len(user_query) > MAX_QUERY_LENGTH:
             return (
-                f"❌ 查詢內容過長 (上限 {self.MAX_QUERY_LENGTH:,} 字元)。\n\n"
+                f"❌ 查詢內容過長 (超過 {MAX_QUERY_LENGTH} 字)。\n\n"
                 "🛠️ 解決步驟：\n"
-                "1. 請縮減您的查詢內容。\n"
-                "2. 嘗試將問題拆分為多個較短的查詢。"
+                "1. 請簡化您的查詢，或拆分成更小的任務。\n"
+                "2. 避免在單一查詢中貼上大量代碼或日誌。"
             )
 
         error = self._init_gemini()

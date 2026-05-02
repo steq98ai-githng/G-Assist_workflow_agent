@@ -6,10 +6,10 @@
 
 **Prevention:** Use automated scripts to verify license headers across the repository.
 
-## 2026-05-01 - Missing Input Length Validation
+## 2026-05-01 - User Query Length Validation
 
-**Vulnerability:** User queries were passed to Gemini without length validation, potentially leading to resource exhaustion (DOS) or excessive API costs if extremely large inputs were provided.
+**Vulnerability:** Resource Exhaustion & Prompt Injection Risk
 
-**Learning:** In text-based agentic workflows, always enforce a strict upper bound on user input length at the earliest possible entry point to protect downstream services (like LLMs) and system memory.
+**Learning:** To prevent resource exhaustion and mitigate certain prompt injection attacks (e.g., extremely long queries designed to overwhelm the model or sandbox), user input must be validated against a reasonable length limit before being processed by the LLM. This limit should be grounded in the system's overall message size constraints.
 
-**Prevention:** Implement a `MAX_QUERY_LENGTH` constant (e.g., 10,000 characters) and validate user input against it before initiating any processing or background threads.
+**Prevention:** Implement a `MAX_QUERY_LENGTH` (e.g., 10,000 characters) check at the entry point of query processing and return a clear, actionable error message to the user if the limit is exceeded.
