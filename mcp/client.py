@@ -20,9 +20,16 @@ class MCPManager:
         for s in servers_config:
             try:
                 name = s.get("name")
-                cmd = shutil.which(s["command"]) or s["command"]
+                cmd_raw = s["command"]
                 args = s.get("args", [])
 
+                # Security: Validate for shell metacharacters to prevent injection
+                forbidden = [";", "&", "|", "$", "`"]
+                if any(any(f in str(part) for f in forbidden) for part in [cmd_raw] + args):
+                    logger.error(f"[MCP] {name} initialization blocked: Potential shell injection detected.")
+                    continue
+
+                cmd = shutil.which(cmd_raw) or cmd_raw
                 transport = StdioTransport(command=[cmd] + args)
                 client = MCPClient(transport)
 
