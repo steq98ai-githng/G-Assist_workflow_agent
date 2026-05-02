@@ -51,9 +51,9 @@ class MCPManager:
                 except Exception:
                     logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
                     return (
-                        f"❌ MCP 工具 `{tool_name}` 執行失敗。\n\n"
+                        f"❌ MCP 工具 `{tool_name}` 執行失敗 (伺服器: `{name}`)。\n\n"
                         "🛠️ 解決步驟：\n"
-                        "1. 請檢查該 MCP 伺服器是否正常運作。\n"
+                        f"1. 請檢查 MCP 伺服器 `{name}` 是否正常運作。\n"
                         "2. 確認輸入參數是否正確。\n"
                         "3. 查看外掛日誌以獲取詳細錯誤訊息。"
                     )
@@ -61,7 +61,7 @@ class MCPManager:
         return (
             f"❌ 找不到 MCP 工具 `{tool_name}`。\n\n"
             "🛠️ 解決步驟：\n"
-            "1. 請確認 MCP 伺服器已正確連接。\n"
+            "1. 請確認 MCP 伺服器已正確連接且狀態為運作中。\n"
             "2. 嘗試重新啟動外掛程式以重新載入工具清單。\n"
-            "3. 檢查設定檔中的 MCP 伺服器配置。"
+            "3. 查看日誌確認是否有 MCP 伺服器啟動失敗的紀錄。"
         )
