@@ -65,6 +65,7 @@ class IntentRouter:
     def process_query(self, user_query: str, plugin_stream_func) -> str:
         """Processes a query in a background thread and streams results."""
         if len(user_query) > self.MAX_QUERY_LENGTH:
+            logger.warning(f"Query length exceeded: {len(user_query)} characters (limit: {self.MAX_QUERY_LENGTH})")
             return (
                 f"❌ 查詢內容過長 (上限 {self.MAX_QUERY_LENGTH:,} 字元)。\n\n"
                 "🛠️ 解決步驟：\n"
