@@ -113,7 +113,13 @@ class IntentRouter:
                     calls = [p.function_call for p in resp.parts if p.function_call]
 
                     if not calls:
-                        res_q.put(("text", "".join([p.text for p in resp.parts if p.text or ""])))
+                        text_resp = "".join([p.text for p in resp.parts if p.text or ""]).strip()
+                        if not text_resp:
+                            text_resp = (
+                                "抱歉，我無法理解您的指令或未獲得有效回應。\n\n"
+                                "💡 提示：您可以嘗試更明確地描述需求，或使用常見指令（如「列出目前可用的工具」）。"
+                            )
+                        res_q.put(("text", text_resp))
                         break
 
                     results = []

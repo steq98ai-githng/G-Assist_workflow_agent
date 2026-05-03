@@ -86,7 +86,8 @@ class PluginRuntime:
                     "💡 提示：您可以試著問我：\n"
                     "- 「幫我診斷目前的系統狀態」\n"
                     "- 「列出目前可用的工具」\n"
-                    "- 「查詢最近的 Git 提交紀錄」"
+                    "- 「查詢最近的 Git 提交紀錄」\n"
+                    "- 「分析這段程式碼並提供重構建議」"
                 )
 
             error = self.intent_router.process_query(user_input, self.plugin.stream)
