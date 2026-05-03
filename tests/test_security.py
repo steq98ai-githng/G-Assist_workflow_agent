@@ -30,7 +30,7 @@ class TestSecurity(unittest.TestCase):
         error = router.process_query(long_query, MagicMock())
 
         self.assertIn("查詢內容過長", error)
-        self.assertIn(str(MAX_QUERY_LENGTH), error)
+        self.assertIn(f"{MAX_QUERY_LENGTH:,}", error)  # 千分位格式: "100,000"
         self.assertIn("🛠️ 解決步驟：", error)
 
 if __name__ == "__main__":

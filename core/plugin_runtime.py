@@ -21,7 +21,6 @@ from config.loader import load_config
 from mcp.client import MCPManager
 from mcp.registry import discover_and_register_tools
 from core.intent_router import IntentRouter
-from core.event_bus import EventBus
 
 PLUGIN_NAME = "system_workflow_agent"
 
@@ -57,7 +56,6 @@ class PluginRuntime:
         self.plugin = Plugin(name=PLUGIN_NAME, version="4.0.4", description="Professional Workflow Specialist")
         self.registry = FunctionRegistry(PLUGIN_NAME, plugin_dir=self.data_dir, source_dir=_plugin_dir)
 
-        self.event_bus = EventBus()
         self.mcp_manager = MCPManager()
         self.intent_router = IntentRouter(self.config, self.mcp_manager, self.registry)
 

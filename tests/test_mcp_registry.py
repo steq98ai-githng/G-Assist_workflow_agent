@@ -6,7 +6,15 @@ ctypes.windll = MagicMock()
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 移除系統安裝的 mcp 套件（若存在），確保本地 mcp/ 目錄優先載入
+for key in list(sys.modules.keys()):
+    if key == "mcp" or key.startswith("mcp."):
+        del sys.modules[key]
+
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 
 from mcp.registry import discover_and_register_tools
 
@@ -22,6 +30,11 @@ class TestMCPRegistry(unittest.TestCase):
         # Mocking the MCP Manager
         mock_manager = MagicMock()
         mock_manager.clients = {"test_client": mock_client}
+        mock_manager.tools_cache = {
+            "test_client": [
+                {"name": "test_tool", "description": "A test tool", "inputSchema": {}}
+            ]
+        }
 
         # Mocking the registry
         mock_registry = MagicMock()

@@ -3,10 +3,12 @@ import shutil
 from typing import Dict, Any, List
 
 try:
-    from gassist_sdk.mcp import MCPClient, StdioTransport
+    from gassist_sdk.mcp import MCPClient, StdioTransport, sanitize_name
 except ImportError:
     # Handle environment where SDK might not be available
-    pass
+    def sanitize_name(name: str) -> str:  # type: ignore[misc]
+        """Fallback name sanitizer matching SDK implementation."""
+        return name.replace("-", "_").replace(" ", "_")
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ class MCPManager:
     def __init__(self):
         self.clients: Dict[str, 'MCPClient'] = {}
         self.tool_maps: Dict[str, Dict[str, str]] = {}
+        self.tools_cache: Dict[str, List[Dict[str, Any]]] = {}
 
     def start_clients(self, servers_config: List[Dict[str, Any]]) -> None:
         """Starts MCP clients based on configuration."""
@@ -38,7 +41,12 @@ class MCPManager:
                 if client.initialize():
                     self.clients[name] = client
                     try:
-                        self.tool_maps[name] = {t["name"]: t["name"] for t in client.list_tools()}
+                        # 雙向映射：{sanitized_name: original_name}，保留原始名稱供 MCP server 呼叫
+                        tools_list = client.list_tools()
+                        self.tools_cache[name] = tools_list
+                        self.tool_maps[name] = {
+                            sanitize_name(t["name"]): t["name"] for t in tools_list
+                        }
                     except Exception:
                         logger.error(f"[MCP] Failed to list tools for {name}", exc_info=True)
                         self.tool_maps[name] = {}
@@ -55,7 +63,9 @@ class MCPManager:
             if tool_name in tools:
                 try:
                     client = self.clients[name]
-                    res = client.call_tool(tool_name, args)
+                    # 使用 original_name（MCP server 所需），而非 sanitized 名稱
+                    original_name = tools[tool_name]
+                    res = client.call_tool(original_name, args)
                     return str(res)
                 except Exception:
                     logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)

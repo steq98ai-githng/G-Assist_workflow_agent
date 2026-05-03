@@ -23,7 +23,7 @@ def discover_and_register_tools(mcp_manager, registry) -> List['FunctionDef']:
 
     for name, client in mcp_manager.clients.items():
         try:
-            tools = client.list_tools()
+            tools = mcp_manager.tools_cache.get(name, [])
             for t in tools:
                 fdef = FunctionDef(
                     name=sanitize_name(t["name"]),

@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-MAX_QUERY_LENGTH = 10000  # 0.1% of 10MB MAX_MESSAGE_SIZE
+MAX_QUERY_LENGTH = 100_000  # 1% of 10MB MAX_MESSAGE_SIZE (aligned with v4.0.4)
 
 class IntentRouter:
-    # Maximum length for user queries to prevent resource exhaustion (0.1% of MAX_MESSAGE_SIZE)
+    # Maximum length for user queries to prevent resource exhaustion (1% of MAX_MESSAGE_SIZE)
     MAX_QUERY_LENGTH = MAX_QUERY_LENGTH
 
     def __init__(self, config: Dict[str, Any], mcp_manager: 'MCPManager', registry):
@@ -68,7 +68,7 @@ class IntentRouter:
         """Processes a query in a background thread and streams results."""
         if len(user_query) > self.MAX_QUERY_LENGTH:
             return (
-                f"❌ 查詢內容過長 (上限 {MAX_QUERY_LENGTH:,} 字元 / {MAX_QUERY_LENGTH})。\n\n"
+                f"❌ 查詢內容過長 (上限 {MAX_QUERY_LENGTH:,} 字元)。\n\n"
                 "🛠️ 解決步驟：\n"
                 "1. 請簡化您的查詢，或拆分成更小的任務。\n"
                 "2. 避免在單一查詢中貼上大量代碼或日誌。"
@@ -98,7 +98,6 @@ class IntentRouter:
                 )
 
                 contents = [
-                    Content(role="system", parts=[Part.from_text(system_prompt)]),
                     Content(role="user", parts=[Part.from_text(user_query)])
                 ]
 
@@ -106,7 +105,10 @@ class IntentRouter:
                     resp = self._client.models.generate_content(
                         model=self.config["gemini_model"],
                         contents=contents,
-                        config=GenerateContentConfig(tools=tools)
+                        config=GenerateContentConfig(
+                            tools=tools,
+                            system_instruction=system_prompt,
+                        )
                     )
 
                     contents.append(Content(role="model", parts=resp.parts))
