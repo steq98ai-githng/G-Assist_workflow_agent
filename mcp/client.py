@@ -27,7 +27,7 @@ class MCPManager:
                 args = s.get("args", [])
 
                 # Security: Validate command and args for shell metacharacters to mitigate injection risks
-                unsafe_chars = [";", "&", "|", "$", "`"]
+                unsafe_chars = [";", "|", "$", "`"]
                 if any(any(c in str(item) for c in unsafe_chars) for item in [cmd_raw] + args):
                     logger.error(f"[MCP] {name} initialization skipped: Unsafe characters detected in command or args.")
                     continue
