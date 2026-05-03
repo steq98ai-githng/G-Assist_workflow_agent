@@ -50,8 +50,9 @@ G-Assist System Workflow Agent Architecture
 | 🇹🇼 **中文原生意圖** | 直接接收並理解中文指令（如「初始化」、「關閉」、「系統狀態」），完美映射到內部生命週期或控制功能。 | ❌ |
 | 🧠 **Gemini AI 擴充** | 整合 Google Gemini 2.0 模型作為大腦，提供專業的「Antigravity DevCore」首席工程師 Persona。 | ✅ 需 Gemini Key |
 | 🔌 **Agentic MCP Bridge** | 內建 MCP Client，自動發現並動態註冊工具，預設支援 **GitKraken** 等 MCP Server。 | ❌ (內建) |
+| 🧠 **代碼分析重構** | 支援深度代碼分析與自動重構建議，加速開發者工作流。 | ✅ 需 Gemini Key |
 | 👁️ **Vision 系統診斷** | 具備視覺多模態能力 (`vision_diagnostic`)，可截取系統畫面並交由 AI 分析效能面板或錯誤訊息。 | ✅ 需 Gemini Key |
-| ⚡ **模組化穩定核心** | 分層架構 (`/core`, `/mcp`, `/vision`, `/config`)，確保高負載下穩定不阻塞。 | ❌ |
+| ⚡ **模組化穩定核心** | 分層架構 (`/core`, `/mcp`, `/vision`, `/config`)，具備自動化意圖診斷與強健的串流超時處理。 | ❌ |
 
 ## 🚀 快速安裝與啟動
 

@@ -2,7 +2,7 @@
 
 ## 🎯 核心能力
 - **Agentic MCP Bridge**: 整合 GitKraken 等 MCP 伺服器，由 Gemini AI 自動調用。
-- **Developer Workflow**: 支援繁體中文代碼審查與系統效能診斷。
+- **Developer Workflow**: 支援繁體中文代碼審查、重構建議與系統效能診斷。
 - **G-Assist Protocol V2**: 符合 NVIDIA 2025/2026 最新外掛規範。
 
 ## ⚙️ 安裝與測試
