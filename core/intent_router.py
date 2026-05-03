@@ -113,7 +113,7 @@ class IntentRouter:
                     calls = [p.function_call for p in resp.parts if p.function_call]
 
                     if not calls:
-                        text_resp = "".join([p.text for p in resp.parts if p.text or ""]).strip()
+                        text_resp = "".join(p.text for p in resp.parts if p.text).strip()
                         if not text_resp:
                             text_resp = (
                                 "抱歉，我無法理解您的指令或未獲得有效回應。\n\n"
