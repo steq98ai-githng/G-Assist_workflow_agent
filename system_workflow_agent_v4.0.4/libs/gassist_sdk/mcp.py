@@ -341,7 +341,25 @@ class StdioTransport(MCPTransport):
                 env=self._env,
                 bufsize=0
             )
-            logger.info(f"Started MCP server: {' '.join(self._command)}")
+
+            # Redact sensitive info from logs
+            sensitive_keywords = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+            safe_cmd = []
+            redact_next = False
+            for part in self._command:
+                if redact_next:
+                    safe_cmd.append("[REDACTED]")
+                    redact_next = False
+                    continue
+
+                if any(k in part.upper() for k in sensitive_keywords):
+                    safe_cmd.append("[REDACTED]")
+                    if part.startswith("-") and "=" not in part:
+                        redact_next = True
+                else:
+                    safe_cmd.append(part)
+
+            logger.info(f"Started MCP server: {' '.join(safe_cmd)}")
             return True
         except Exception:
             logger.error("Failed to start MCP server", exc_info=True)
