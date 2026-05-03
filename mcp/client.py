@@ -19,17 +19,16 @@ class MCPManager:
         """Starts MCP clients based on configuration."""
         for s in servers_config:
             try:
-                name = s.get("name", "Unknown")
+                name = s.get("name")
                 cmd_raw = s.get("command")
+                args = s.get("args") or []
                 if not cmd_raw:
-                    logger.error(f"[MCP] {name} initialization skipped: 'command' is missing in configuration.")
                     continue
-                args = s.get("args", [])
 
-                # Security: Validate command and args for shell metacharacters to mitigate injection risks
-                unsafe_chars = [";", "|", "$", "`"]
-                if any(any(c in str(item) for c in unsafe_chars) for item in [cmd_raw] + args):
-                    logger.error(f"[MCP] {name} initialization skipped: Unsafe characters detected in command or args.")
+                # Security: Validate for shell metacharacters to prevent injection
+                forbidden = [";", "&", "|", "$", "`"]
+                if any(any(f in str(part) for f in forbidden) for part in [cmd_raw] + args):
+                    logger.error(f"[MCP] {name} initialization blocked: Potential shell injection detected.")
                     continue
 
                 cmd = shutil.which(cmd_raw) or cmd_raw
