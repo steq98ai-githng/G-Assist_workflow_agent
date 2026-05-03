@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import MagicMock, patch
 import os
 import sys
 
@@ -12,6 +13,32 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from libs.gassist_sdk.mcp import StdioTransport
 
 class TestStdioTransport(unittest.TestCase):
+    def test_log_redaction(self):
+        """Verify that sensitive command arguments are redacted in logs."""
+        from libs.gassist_sdk.mcp import logger
+
+        # Test command with sensitive info
+        command = ["my-server", "--api-key", "v1.real_key", "--token=abc", "safe-arg"]
+
+        with patch.object(logger, 'info') as mock_info:
+            # Mock subprocess.Popen to avoid actually running anything
+            with patch('subprocess.Popen') as mock_popen:
+                mock_popen.return_value.poll.return_value = None
+
+                transport = StdioTransport(command=command)
+                transport.start()
+
+                # Check that the log message exists and is redacted
+                self.assertTrue(mock_info.called)
+                log_msg = mock_info.call_args[0][0]
+
+                self.assertIn("Started MCP server:", log_msg)
+                self.assertIn("my-server", log_msg)
+                self.assertIn("safe-arg", log_msg)
+                self.assertIn("[REDACTED]", log_msg)
+                self.assertNotIn("v1.real_key", log_msg)
+                self.assertNotIn("abc", log_msg)
+
     def test_environment_variable_sanitization(self):
         """Verify that sensitive environment variables are filtered out of the subprocess environment."""
 
