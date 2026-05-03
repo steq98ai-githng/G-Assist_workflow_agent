@@ -21,6 +21,9 @@ class MCPManager:
             try:
                 name = s.get("name", "Unknown")
                 cmd_raw = s.get("command")
+                if not cmd_raw:
+                    logger.error(f"[MCP] {name} initialization skipped: 'command' is missing in configuration.")
+                    continue
                 args = s.get("args", [])
 
                 # Security: Validate command and args for shell metacharacters to mitigate injection risks
