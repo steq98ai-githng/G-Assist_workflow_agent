@@ -20,8 +20,10 @@ class MCPManager:
         for s in servers_config:
             try:
                 name = s.get("name")
-                cmd_raw = s["command"]
-                args = s.get("args", [])
+                cmd_raw = s.get("command")
+                args = s.get("args") or []
+                if not cmd_raw:
+                    continue
 
                 # Security: Validate for shell metacharacters to prevent injection
                 forbidden = [";", "&", "|", "$", "`"]
