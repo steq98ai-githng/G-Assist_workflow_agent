@@ -333,6 +333,40 @@ class StdioTransport(MCPTransport):
     def start(self) -> bool:
         """Start the subprocess."""
         try:
+            # Security: Validate for shell metacharacters to prevent injection (defense-in-depth)
+            forbidden = [";", "&", "|", "$", "`"]
+            if any(any(f in str(part) for f in forbidden) for part in self._command):
+                logger.error("MCP server initialization blocked: Potential shell injection detected in command.")
+                return False
+
+            # Security: Mask sensitive keywords and their values in logs
+            sensitive_keywords = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+            masked_cmd = []
+            skip_next = False
+            for i, part in enumerate(self._command):
+                if skip_next:
+                    skip_next = False
+                    continue
+
+                part_str = str(part)
+                part_upper = part_str.upper()
+
+                if any(kw in part_upper for kw in sensitive_keywords):
+                    if "=" in part_str:
+                        # Handles --api-key=value
+                        key, _ = part_str.split("=", 1)
+                        masked_cmd.append(f"{key}=********")
+                    elif i + 1 < len(self._command):
+                        # Handles --api-key value
+                        masked_cmd.append(part_str)
+                        masked_cmd.append("********")
+                        skip_next = True
+                    else:
+                        # Handles standalone sensitive keywords
+                        masked_cmd.append("********")
+                else:
+                    masked_cmd.append(part_str)
+
             self._process = subprocess.Popen(  # nosec B603
                 self._command,
                 stdin=subprocess.PIPE,
@@ -341,7 +375,7 @@ class StdioTransport(MCPTransport):
                 env=self._env,
                 bufsize=0
             )
-            logger.info(f"Started MCP server: {' '.join(self._command)}")
+            logger.info(f"Started MCP server: {' '.join(masked_cmd)}")
             return True
         except Exception:
             logger.error("Failed to start MCP server", exc_info=True)
