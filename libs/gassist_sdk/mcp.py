@@ -356,7 +356,7 @@ class StdioTransport(MCPTransport):
                         # Handles --api-key=value
                         key, _ = part_str.split("=", 1)
                         masked_cmd.append(f"{key}=********")
-                    elif i + 1 < len(self._command):
+                    elif part_str.startswith("-") and i + 1 < len(self._command):
                         # Handles --api-key value
                         masked_cmd.append(part_str)
                         masked_cmd.append("********")
