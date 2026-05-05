@@ -308,6 +308,9 @@ class StdioTransport(MCPTransport):
     Per MCP spec: Uses newline-delimited JSON messages over stdin/stdout.
     """
 
+    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`"]
+
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
         Initialize stdio transport.
@@ -320,19 +323,48 @@ class StdioTransport(MCPTransport):
 
         # Security: Prevent credential leakage to child processes
         # Filter out sensitive environment variables from os.environ
-        sensitive_keywords = ["API_KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
         safe_env = {
             k: v for k, v in os.environ.items()
-            if not any(keyword in k.upper() for keyword in sensitive_keywords)
+            if not any(keyword in k.upper() for keyword in self.SENSITIVE_KEYWORDS)
         }
 
         self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
 
+    def _mask_sensitive_args(self, args: List[str]) -> List[str]:
+        """Mask sensitive values in command line arguments for logging."""
+        masked = []
+        skip_next = False
+        for i, arg in enumerate(args):
+            if skip_next:
+                masked.append("********")
+                skip_next = False
+                continue
+
+            arg_str = str(arg)
+            upper_arg = arg_str.upper()
+
+            # Handle --key=val
+            if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                key, _ = arg_str.split("=", 1)
+                masked.append(f"{key}=********")
+            # Handle --key val
+            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+                masked.append(arg_str)
+                skip_next = True
+            else:
+                masked.append(arg_str)
+        return masked
+
     def start(self) -> bool:
         """Start the subprocess."""
         try:
+            # Security: Validate for shell metacharacters to prevent injection
+            if any(any(f in str(part) for f in self.FORBIDDEN_METACHARS) for part in self._command):
+                logger.error("MCP initialization blocked: Potential shell injection detected in command args.")
+                return False
+
             self._process = subprocess.Popen(  # nosec B603
                 self._command,
                 stdin=subprocess.PIPE,
@@ -341,7 +373,8 @@ class StdioTransport(MCPTransport):
                 env=self._env,
                 bufsize=0
             )
-            logger.info(f"Started MCP server: {' '.join(self._command)}")
+            masked_cmd = self._mask_sensitive_args(self._command)
+            logger.info(f"Started MCP server: {' '.join(masked_cmd)}")
             return True
         except Exception:
             logger.error("Failed to start MCP server", exc_info=True)
