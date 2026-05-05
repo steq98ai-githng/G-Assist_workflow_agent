@@ -21,3 +21,11 @@
 **Learning:** MCP server initialization using `StdioTransport` takes a command and arguments from the configuration. If these are not validated, an attacker who can modify the configuration could execute arbitrary shell commands by including shell metacharacters.
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
+
+## 2026-05-05 - Masking Sensitive MCP Startup Arguments
+
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
+
+**Learning:** When starting MCP servers via `StdioTransport`, command-line arguments often contain sensitive credentials (API keys, tokens). Logging the full command string results in credential leakage to system logs.
+
+**Prevention:** Implement a masking helper that redacts values associated with sensitive keywords (e.g., `API_KEY`, `TOKEN`) in both `--key=value` and `--key value` formats before logging the command execution.
