@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-MAX_QUERY_LENGTH = 10_000  # 0.1% of 10MB MAX_MESSAGE_SIZE (aligned with v4.0.4)
+MAX_QUERY_LENGTH = 50_000  # 0.5% of 10MB MAX_MESSAGE_SIZE (aligned with v4.0.4)
 
 class IntentRouter:
     # Maximum length for user queries to prevent resource exhaustion (0.1% of MAX_MESSAGE_SIZE)
