@@ -323,7 +323,7 @@ class StdioTransport(MCPTransport):
         if any(any(f in str(part) for f in self.FORBIDDEN_METACHARS) for part in command):
             raise MCPError("Potential shell injection detected in command arguments")
 
-        self._command = command
+        self._command = list(command)
 
         # Security: Prevent credential leakage to child processes
         # Filter out sensitive environment variables from os.environ
