@@ -22,10 +22,10 @@
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
 
-## 2026-05-06 - Missing SSL Verification in HTTP Requests
+## 2026-05-04 - Command-Line Credential Masking in Logs
 
-**Vulnerability:** Man-in-the-Middle (MITM) Attack Risk
+**Vulnerability:** Information Disclosure (Credentials in Logs)
 
-**Learning:** Allowing users to disable SSL verification () in HTTP requests without a prominent warning can lead to insecure deployments. While useful for local testing with self-signed certificates, it exposes communication to MITM attacks where an attacker can intercept or modify sensitive data.
+**Learning:** When starting an MCP server via `StdioTransport`, the full command and arguments are logged. If these arguments contain sensitive information like API keys or tokens (e.g., `--api-key=SECRET`), they will be leaked to the system logs in plain text.
 
-**Prevention:** Always log a strong security warning when SSL verification is disabled. Additionally, consider enforcing SSL verification by default and requiring explicit opt-out with documented risks.
+**Prevention:** Implement a masking mechanism in the transport's startup logic to identify and redact sensitive keywords (`API_KEY`, `TOKEN`, `SECRET`, etc.) and their associated values before logging the command line. This ensures that even if credentials are passed via CLI flags, they are not permanently stored in logs.
