@@ -21,3 +21,11 @@
 **Learning:** MCP server initialization using `StdioTransport` takes a command and arguments from the configuration. If these are not validated, an attacker who can modify the configuration could execute arbitrary shell commands by including shell metacharacters.
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
+
+## 2026-05-06 - Missing SSL Verification in HTTP Requests
+
+**Vulnerability:** Man-in-the-Middle (MITM) Attack Risk
+
+**Learning:** Allowing users to disable SSL verification () in HTTP requests without a prominent warning can lead to insecure deployments. While useful for local testing with self-signed certificates, it exposes communication to MITM attacks where an attacker can intercept or modify sensitive data.
+
+**Prevention:** Always log a strong security warning when SSL verification is disabled. Additionally, consider enforcing SSL verification by default and requiring explicit opt-out with documented risks.
