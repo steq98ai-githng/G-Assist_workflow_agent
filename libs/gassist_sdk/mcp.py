@@ -308,6 +308,9 @@ class StdioTransport(MCPTransport):
     Per MCP spec: Uses newline-delimited JSON messages over stdin/stdout.
     """
 
+    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`"]
+
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
         Initialize stdio transport.
@@ -316,19 +319,55 @@ class StdioTransport(MCPTransport):
             command: Command to spawn MCP server (e.g., ["node", "server.js"])
             env: Environment variables for the subprocess
         """
-        self._command = command
+        # Security: Prevent shell injection via command arguments
+        if any(any(f in str(part) for f in self.FORBIDDEN_METACHARS) for part in command):
+            raise MCPError("Potential shell injection detected in command arguments")
+
+        self._command = list(command)
 
         # Security: Prevent credential leakage to child processes
         # Filter out sensitive environment variables from os.environ
-        sensitive_keywords = ["API_KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
         safe_env = {
             k: v for k, v in os.environ.items()
-            if not any(keyword in k.upper() for keyword in sensitive_keywords)
+            if not any(kw in k.upper() for kw in self.SENSITIVE_KEYWORDS)
         }
 
         self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
+
+    def _mask_sensitive_args(self, command: List[str]) -> List[str]:
+        """Redact sensitive information from command-line arguments."""
+        masked_cmd = []
+
+        skip_next = False
+        for i, part in enumerate(command):
+            if skip_next:
+                skip_next = False
+                continue
+
+            part_str = str(part)
+            part_upper = part_str.upper()
+
+            # Handle --key=val or --key val
+            is_sensitive = any(kw in part_upper for kw in self.SENSITIVE_KEYWORDS)
+
+            if is_sensitive:
+                if "=" in part_str:
+                    key, _ = part_str.split("=", 1)
+                    masked_cmd.append(f"{key}=********")
+                elif part_str.startswith("-"):
+                    masked_cmd.append(part_str)
+                    if i + 1 < len(command):
+                        masked_cmd.append("********")
+                        skip_next = True
+                else:
+                    # Positional argument containing sensitive keyword
+                    masked_cmd.append("********")
+            else:
+                masked_cmd.append(part_str)
+
+        return masked_cmd
 
     def start(self) -> bool:
         """Start the subprocess."""
@@ -375,6 +414,7 @@ class StdioTransport(MCPTransport):
                 env=self._env,
                 bufsize=0
             )
+            masked_cmd = self._mask_sensitive_args(self._command)
             logger.info(f"Started MCP server: {' '.join(masked_cmd)}")
             return True
         except Exception:

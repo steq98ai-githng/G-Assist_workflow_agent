@@ -22,10 +22,10 @@
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
 
-## 2026-05-04 - Command-Line Credential Masking in Logs
+## 2026-05-04 - Sensitive Data Leakage in MCP Logs
 
-**Vulnerability:** Information Disclosure (Credentials in Logs)
+**Vulnerability:** Information Disclosure via System Logs
 
-**Learning:** When starting an MCP server via `StdioTransport`, the full command and arguments are logged. If these arguments contain sensitive information like API keys or tokens (e.g., `--api-key=SECRET`), they will be leaked to the system logs in plain text.
+**Learning:** When spawning MCP servers via `StdioTransport`, command-line arguments often contain sensitive credentials (e.g., `--api-key`). Logging the raw command line for diagnostic purposes can lead to credential leakage in log files.
 
-**Prevention:** Implement a masking mechanism in the transport's startup logic to identify and redact sensitive keywords (`API_KEY`, `TOKEN`, `SECRET`, etc.) and their associated values before logging the command line. This ensures that even if credentials are passed via CLI flags, they are not permanently stored in logs.
+**Prevention:** Implement a masking mechanism in the transport layer to redact sensitive argument values (identified by keywords like `API_KEY`, `TOKEN`, etc.) before logging the startup command.
