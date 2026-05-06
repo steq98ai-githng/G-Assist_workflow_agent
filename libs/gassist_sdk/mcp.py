@@ -372,6 +372,40 @@ class StdioTransport(MCPTransport):
     def start(self) -> bool:
         """Start the subprocess."""
         try:
+            # Security: Validate for shell metacharacters to prevent injection (defense-in-depth)
+            forbidden = [";", "&", "|", "$", "`"]
+            if any(any(f in str(part) for f in forbidden) for part in self._command):
+                logger.error("MCP server initialization blocked: Potential shell injection detected in command.")
+                return False
+
+            # Security: Mask sensitive keywords and their values in logs
+            sensitive_keywords = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+            masked_cmd = []
+            skip_next = False
+            for i, part in enumerate(self._command):
+                if skip_next:
+                    skip_next = False
+                    continue
+
+                part_str = str(part)
+                part_upper = part_str.upper()
+
+                if any(kw in part_upper for kw in sensitive_keywords):
+                    if "=" in part_str:
+                        # Handles --api-key=value
+                        key, _ = part_str.split("=", 1)
+                        masked_cmd.append(f"{key}=********")
+                    elif part_str.startswith("-") and i + 1 < len(self._command):
+                        # Handles --api-key value
+                        masked_cmd.append(part_str)
+                        masked_cmd.append("********")
+                        skip_next = True
+                    else:
+                        # Handles standalone sensitive keywords
+                        masked_cmd.append("********")
+                else:
+                    masked_cmd.append(part_str)
+
             self._process = subprocess.Popen(  # nosec B603
                 self._command,
                 stdin=subprocess.PIPE,
@@ -465,6 +499,13 @@ class HTTPTransport(MCPTransport):
         self._session_timeout = session_timeout
         self._verify = verify
         self._proxies = proxies
+
+        if self._verify is False:
+            logger.warning(
+                "SSL verification is disabled (verify=False) for MCP HTTP transport. "
+                "This is a security risk and should only be used for local testing. "
+                "It allows potential Man-in-the-Middle (MITM) attacks."
+            )
         self._session_id: Optional[str] = None
         self._session_last_used: float = 0.0
         self._closed = False
