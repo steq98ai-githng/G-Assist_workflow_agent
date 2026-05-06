@@ -356,11 +356,14 @@ class StdioTransport(MCPTransport):
                 if "=" in part_str:
                     key, _ = part_str.split("=", 1)
                     masked_cmd.append(f"{key}=********")
-                else:
+                elif part_str.startswith("-"):
                     masked_cmd.append(part_str)
                     if i + 1 < len(command):
                         masked_cmd.append("********")
                         skip_next = True
+                else:
+                    # Positional argument containing sensitive keyword
+                    masked_cmd.append("********")
             else:
                 masked_cmd.append(part_str)
 
