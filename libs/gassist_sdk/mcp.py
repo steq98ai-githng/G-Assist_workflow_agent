@@ -329,82 +329,53 @@ class StdioTransport(MCPTransport):
         # Filter out sensitive environment variables from os.environ
         safe_env = {
             k: v for k, v in os.environ.items()
-            if not any(kw in k.upper() for kw in self.SENSITIVE_KEYWORDS)
+            if not any(keyword in k.upper() for keyword in self.SENSITIVE_KEYWORDS)
         }
 
         self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
 
-    def _mask_sensitive_args(self, command: List[str]) -> List[str]:
-        """Redact sensitive information from command-line arguments."""
-        masked_cmd = []
-
+    def _mask_sensitive_args(self, args: List[str]) -> List[str]:
+        """Mask sensitive information in command-line arguments for logging."""
+        masked = []
         skip_next = False
-        for i, part in enumerate(command):
+        for i, arg in enumerate(args):
             if skip_next:
                 skip_next = False
                 continue
 
-            part_str = str(part)
-            part_upper = part_str.upper()
+            arg_str = str(arg)
+            upper_arg = arg_str.upper()
 
-            # Handle --key=val or --key val
-            is_sensitive = any(kw in part_upper for kw in self.SENSITIVE_KEYWORDS)
+            # Case 1: --key=value
+            if "=" in arg_str:
+                key, val = arg_str.split("=", 1)
+                if any(k in key.upper() for k in self.SENSITIVE_KEYWORDS):
+                    masked.append(f"{key}=********")
+                    continue
 
-            if is_sensitive:
-                if "=" in part_str:
-                    key, _ = part_str.split("=", 1)
-                    masked_cmd.append(f"{key}=********")
-                elif part_str.startswith("-"):
-                    masked_cmd.append(part_str)
-                    if i + 1 < len(command):
-                        masked_cmd.append("********")
+            # Case 2: --key value or sensitive positional arg
+            if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                if arg_str.startswith("-"):
+                    masked.append(arg_str)
+                    if i + 1 < len(args):
+                        masked.append("********")
                         skip_next = True
                 else:
-                    # Positional argument containing sensitive keyword
-                    masked_cmd.append("********")
-            else:
-                masked_cmd.append(part_str)
+                    masked.append("********")
+                continue
 
-        return masked_cmd
+            masked.append(arg_str)
+        return masked
 
     def start(self) -> bool:
         """Start the subprocess."""
         try:
-            # Security: Validate for shell metacharacters to prevent injection (defense-in-depth)
-            forbidden = [";", "&", "|", "$", "`"]
-            if any(any(f in str(part) for f in forbidden) for part in self._command):
-                logger.error("MCP server initialization blocked: Potential shell injection detected in command.")
+            # Security: Validate for shell metacharacters to prevent injection
+            if any(any(f in str(part) for f in self.FORBIDDEN_METACHARS) for part in self._command):
+                logger.error("MCP initialization blocked: Potential shell injection detected in command args.")
                 return False
-
-            # Security: Mask sensitive keywords and their values in logs
-            sensitive_keywords = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-            masked_cmd = []
-            skip_next = False
-            for i, part in enumerate(self._command):
-                if skip_next:
-                    skip_next = False
-                    continue
-
-                part_str = str(part)
-                part_upper = part_str.upper()
-
-                if any(kw in part_upper for kw in sensitive_keywords):
-                    if "=" in part_str:
-                        # Handles --api-key=value
-                        key, _ = part_str.split("=", 1)
-                        masked_cmd.append(f"{key}=********")
-                    elif part_str.startswith("-") and i + 1 < len(self._command):
-                        # Handles --api-key value
-                        masked_cmd.append(part_str)
-                        masked_cmd.append("********")
-                        skip_next = True
-                    else:
-                        # Handles standalone sensitive keywords
-                        masked_cmd.append("********")
-                else:
-                    masked_cmd.append(part_str)
 
             self._process = subprocess.Popen(  # nosec B603
                 self._command,
