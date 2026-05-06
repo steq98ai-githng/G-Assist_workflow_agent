@@ -17,6 +17,7 @@ class MCPManager:
         self.clients: Dict[str, 'MCPClient'] = {}
         self.tool_maps: Dict[str, Dict[str, str]] = {}
         self.tools_cache: Dict[str, List[Dict[str, Any]]] = {}
+        self._tool_to_client_map: Dict[str, str] = {}
 
     def start_clients(self, servers_config: List[Dict[str, Any]]) -> None:
         """Starts MCP clients based on configuration."""
@@ -44,9 +45,16 @@ class MCPManager:
                         # 雙向映射：{sanitized_name: original_name}，保留原始名稱供 MCP server 呼叫
                         tools_list = client.list_tools()
                         self.tools_cache[name] = tools_list
-                        self.tool_maps[name] = {
-                            sanitize_name(t["name"]): t["name"] for t in tools_list
-                        }
+
+                        client_tool_map = {}
+                        for t in tools_list:
+                            sanitized = sanitize_name(t["name"])
+                            client_tool_map[sanitized] = t["name"]
+                            # 建立反向查詢快取：若多個 server 有同名工具，採先註冊者優先 (與原本迴圈邏輯一致)
+                            if sanitized not in self._tool_to_client_map:
+                                self._tool_to_client_map[sanitized] = name
+
+                        self.tool_maps[name] = client_tool_map
                     except Exception:
                         logger.error(f"[MCP] Failed to list tools for {name}", exc_info=True)
                         self.tool_maps[name] = {}
@@ -59,23 +67,24 @@ class MCPManager:
 
     def call_tool(self, tool_name: str, args: Dict[str, Any]) -> str:
         """Routes tool call to the appropriate client."""
-        for name, tools in self.tool_maps.items():
-            if tool_name in tools:
-                try:
-                    client = self.clients[name]
-                    # 使用 original_name（MCP server 所需），而非 sanitized 名稱
-                    original_name = tools[tool_name]
-                    res = client.call_tool(original_name, args)
-                    return str(res)
-                except Exception:
-                    logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
-                    return (
-                        f"❌ MCP 工具 `{tool_name}` 執行失敗 (伺服器: `{name}`)。\n\n"
-                        "🛠️ 解決步驟：\n"
-                        f"1. 請檢查 MCP 伺服器 `{name}` 是否正常運作。\n"
-                        "2. 確認輸入參數是否正確。\n"
-                        "3. 查看外掛日誌以獲取詳細錯誤訊息。"
-                    )
+        if tool_name in self._tool_to_client_map:
+            name = self._tool_to_client_map[tool_name]
+            try:
+                client = self.clients[name]
+                tools = self.tool_maps[name]
+                # 使用 original_name（MCP server 所需），而非 sanitized 名稱
+                original_name = tools[tool_name]
+                res = client.call_tool(original_name, args)
+                return str(res)
+            except Exception:
+                logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
+                return (
+                    f"❌ MCP 工具 `{tool_name}` 執行失敗 (伺服器: `{name}`)。\n\n"
+                    "🛠️ 解決步驟：\n"
+                    f"1. 請檢查 MCP 伺服器 `{name}` 是否正常運作。\n"
+                    "2. 確認輸入參數是否正確。\n"
+                    "3. 查看外掛日誌以獲取詳細錯誤訊息。"
+                )
 
         return (
             f"❌ 找不到 MCP 工具 `{tool_name}`。\n\n"
