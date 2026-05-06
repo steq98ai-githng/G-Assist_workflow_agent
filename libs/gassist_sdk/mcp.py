@@ -459,6 +459,13 @@ class HTTPTransport(MCPTransport):
         self._session_timeout = session_timeout
         self._verify = verify
         self._proxies = proxies
+
+        if self._verify is False:
+            logger.warning(
+                "SSL verification is disabled (verify=False) for MCP HTTP transport. "
+                "This is a security risk and should only be used for local testing. "
+                "It allows potential Man-in-the-Middle (MITM) attacks."
+            )
         self._session_id: Optional[str] = None
         self._session_last_used: float = 0.0
         self._closed = False
