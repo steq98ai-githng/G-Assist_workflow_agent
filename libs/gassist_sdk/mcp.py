@@ -351,12 +351,15 @@ class StdioTransport(MCPTransport):
                     masked.append(f"{key}=********")
                     continue
 
-            # Case 2: --key value
+            # Case 2: --key value or sensitive positional arg
             if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                masked.append(arg_str)
-                if i + 1 < len(args):
+                if arg_str.startswith("-"):
+                    masked.append(arg_str)
+                    if i + 1 < len(args):
+                        masked.append("********")
+                        skip_next = True
+                else:
                     masked.append("********")
-                    skip_next = True
                 continue
 
             masked.append(arg_str)
