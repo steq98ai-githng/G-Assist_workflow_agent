@@ -29,3 +29,11 @@
 **Learning:** When starting MCP servers via `StdioTransport`, command-line arguments often contain sensitive credentials (API keys, tokens). Logging the full command string results in credential leakage to system logs.
 
 **Prevention:** Implement a masking helper that redacts values associated with sensitive keywords (e.g., `API_KEY`, `TOKEN`) in both `--key=value` and `--key value` formats before logging the command execution.
+
+## 2026-05-07 - Sensitive Data in Intent Handler Logs
+
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
+
+**Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
+
+**Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
