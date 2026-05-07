@@ -21,3 +21,11 @@
 **Learning:** MCP server initialization using `StdioTransport` takes a command and arguments from the configuration. If these are not validated, an attacker who can modify the configuration could execute arbitrary shell commands by including shell metacharacters.
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
+
+## 2026-05-05 - Sensitive Data in Subprocess Logs
+
+**Vulnerability:** Information Disclosure via System Logs
+
+**Learning:** When spawning subprocesses with command-line arguments, sensitive information such as API keys or tokens may be passed as arguments. Logging the raw command line can leak these secrets into system logs or developer consoles.
+
+**Prevention:** Implement a masking mechanism to identify and redact sensitive values (e.g., matching keywords like 'API_KEY', 'TOKEN') in command-line arguments before logging them. Handle both joined (`--key=val`) and separate (`--key val`) argument formats.
