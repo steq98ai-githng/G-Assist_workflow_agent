@@ -337,36 +337,28 @@ class StdioTransport(MCPTransport):
         self._lock = threading.Lock()
 
     def _mask_sensitive_args(self, args: List[str]) -> List[str]:
-        """Mask sensitive information in command-line arguments for logging."""
+        """Mask sensitive values in command line arguments for logging."""
         masked = []
         skip_next = False
         for i, arg in enumerate(args):
             if skip_next:
+                masked.append("********")
                 skip_next = False
                 continue
 
             arg_str = str(arg)
             upper_arg = arg_str.upper()
 
-            # Case 1: --key=value
-            if "=" in arg_str:
-                key, val = arg_str.split("=", 1)
-                if any(k in key.upper() for k in self.SENSITIVE_KEYWORDS):
-                    masked.append(f"{key}=********")
-                    continue
-
-            # Case 2: --key value or sensitive positional arg
-            if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                if arg_str.startswith("-"):
-                    masked.append(arg_str)
-                    if i + 1 < len(args):
-                        masked.append("********")
-                        skip_next = True
-                else:
-                    masked.append("********")
-                continue
-
-            masked.append(arg_str)
+            # Handle --key=val
+            if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                key, _ = arg_str.split("=", 1)
+                masked.append(f"{key}=********")
+            # Handle --key val
+            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+                masked.append(arg_str)
+                skip_next = True
+            else:
+                masked.append(arg_str)
         return masked
 
     def start(self) -> bool:

@@ -82,10 +82,10 @@ class PluginRuntime:
                     "💠 **Antigravity DevCore System Agent v4.0.4**\n"
                     "工程指令就緒，請輸入查詢事項。\n\n"
                     "💡 提示：您可以試著問我：\n"
-                    "- 「幫我進行系統效能診斷」\n"
-                    "- 「優化我的 Git 工作流」\n"
-                    "- 「對這段程式碼進行自動重構分析」\n"
-                    "- 「列出目前可用的工具」"
+                    "- 「系統效能診斷」\n"
+                    "- 「Git 工作流優化」\n"
+                    "- 「列出目前可用的工具」\n"
+                    "- 「代碼自動重構分析」"
                 )
 
             error = self.intent_router.process_query(user_input, self.plugin.stream)
