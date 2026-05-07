@@ -15,8 +15,8 @@ class GitIntentHandler(BaseIntentHandler):
     """
 
     async def handle_stream(self, request: AgentRequest) -> AsyncGenerator[str, None]:
-        logger.info(f"GitIntentHandler 接收到請求 (長度: {len(request.user_input)})")
-        logger.debug(f"GitIntentHandler 請求內容: {request.user_input}")
+        logger.info("GitIntentHandler 接收到請求 (長度: %d)", len(request.user_input))
+        logger.debug("GitIntentHandler 請求內容: %s", request.user_input)
         yield "[Git Workflow] 正在查詢 Git 狀態...\n"
         yield f"處理請求：{request.user_input}\n"
         # 未來整合: mcp client calls or local git subprocess
