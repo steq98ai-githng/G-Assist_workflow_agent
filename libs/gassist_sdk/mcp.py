@@ -309,7 +309,7 @@ class StdioTransport(MCPTransport):
     """
 
     SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
