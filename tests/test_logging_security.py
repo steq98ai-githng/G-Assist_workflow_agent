@@ -51,6 +51,7 @@ class TestLoggingSecurity(unittest.TestCase):
 
             # Check INFO logs
             info_logs = [log for log in cm.output if "INFO" in log]
+            self.assertTrue(info_logs, "No INFO logs were captured")
             for log in info_logs:
                 self.assertNotIn(self.sensitive_input, log, "Sensitive input found in INFO log!")
                 self.assertIn(str(len(self.sensitive_input)), log, "Input length should be in log.")
