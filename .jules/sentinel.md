@@ -22,10 +22,10 @@
 
 **Prevention:** Validate all parts of the subprocess command and arguments against a blacklist of forbidden shell metacharacters (e.g., `;`, `&`, `|`, `$`, `` ` ``) before spawning the process.
 
-## 2026-05-05 - Masking Sensitive MCP Startup Arguments
+## 2026-05-05 - Sensitive Data in Subprocess Logs
 
-**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
+**Vulnerability:** Information Disclosure via System Logs
 
-**Learning:** When starting MCP servers via `StdioTransport`, command-line arguments often contain sensitive credentials (API keys, tokens). Logging the full command string results in credential leakage to system logs.
+**Learning:** When spawning subprocesses with command-line arguments, sensitive information such as API keys or tokens may be passed as arguments. Logging the raw command line can leak these secrets into system logs or developer consoles.
 
-**Prevention:** Implement a masking helper that redacts values associated with sensitive keywords (e.g., `API_KEY`, `TOKEN`) in both `--key=value` and `--key value` formats before logging the command execution.
+**Prevention:** Implement a masking mechanism to identify and redact sensitive values (e.g., matching keywords like 'API_KEY', 'TOKEN') in command-line arguments before logging them. Handle both joined (`--key=val`) and separate (`--key val`) argument formats.
