@@ -30,7 +30,7 @@ class MCPManager:
                     continue
 
                 # Security: Validate for shell metacharacters to prevent injection
-                forbidden = [";", "&", "|", "$", "`"]
+                forbidden = StdioTransport.FORBIDDEN_METACHARS
                 if any(any(f in str(part) for f in forbidden) for part in [cmd_raw] + args):
                     logger.error(f"[MCP] {name} initialization blocked: Potential shell injection detected.")
                     continue

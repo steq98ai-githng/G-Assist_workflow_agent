@@ -28,4 +28,12 @@
 
 **Learning:** When spawning subprocesses with command-line arguments, sensitive information such as API keys or tokens may be passed as arguments. Logging the raw command line can leak these secrets into system logs or developer consoles.
 
-**Prevention:** Implement a masking mechanism to identify and redact sensitive values (e.g., matching keywords like 'API_KEY', 'TOKEN') in command-line arguments before logging them. Handle both joined (`--key=val`) and separate (`--key val`) argument formats.
+**Prevention:** Implement a masking helper that redacts values associated with sensitive keywords (e.g., `API_KEY`, `TOKEN`) in both `--key=value` and `--key value` formats before logging the command execution.
+
+## 2026-05-06 - Comprehensive Subprocess Environment Sanitization
+
+**Vulnerability:** Information Disclosure (Credential Leakage)
+
+**Learning:** Initializing subprocesses with a user-provided `env` dictionary can bypass default environment sanitization if the provided dictionary itself contains sensitive keys. Merging `os.environ` with the custom `env` *before* filtering is necessary to ensure no credentials leak into the child process.
+
+**Prevention:** In `StdioTransport.__init__`, merge all environment sources first, then iterate through the resulting dictionary to remove any keys matching `SENSITIVE_KEYWORDS` before passing it to `subprocess.Popen`.

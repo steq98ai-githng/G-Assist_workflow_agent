@@ -309,7 +309,7 @@ class StdioTransport(MCPTransport):
     """
 
     SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
@@ -326,13 +326,13 @@ class StdioTransport(MCPTransport):
         self._command = list(command)
 
         # Security: Prevent credential leakage to child processes
-        # Filter out sensitive environment variables from os.environ
-        safe_env = {
-            k: v for k, v in os.environ.items()
+        # Filter out sensitive environment variables from both os.environ and passed env
+        merged_env = {**os.environ, **(env or {})}
+        self._env = {
+            k: v for k, v in merged_env.items()
             if not any(keyword in k.upper() for keyword in self.SENSITIVE_KEYWORDS)
         }
 
-        self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
 
