@@ -82,3 +82,39 @@ class TestIntentRouter(unittest.TestCase):
         error = router.process_query(long_query, MagicMock())
         self.assertIn("查詢內容過長", error)
         self.assertIn(f"上限 {router.MAX_QUERY_LENGTH:,} 字元", error)
+
+    @patch.dict('sys.modules', {
+        'google': MagicMock(),
+        'google.genai': MagicMock(),
+        'google.genai.types': MagicMock()
+    })
+    def test_process_query_empty_model_response(self):
+        """驗證模型回傳空內容時的 fallback 處理。"""
+        config = {"gemini_model": "test-model"}
+        mcp_manager = MagicMock()
+        registry = MagicMock()
+        registry.all_functions.return_value = []
+
+        router = IntentRouter(config, mcp_manager, registry)
+
+        # Mock Gemini client and response
+        mock_client = MagicMock()
+        router._client = mock_client
+
+        mock_resp = MagicMock()
+        mock_resp.parts = [] # No text, no function calls
+        mock_client.models.generate_content.return_value = mock_resp
+
+        stream_mock = MagicMock()
+        router.process_query("Hello", stream_mock)
+
+        # Check if fallback message was streamed
+        # stream_mock is called multiple times, one should contain the fallback
+        fallback_called = False
+        for call in stream_mock.call_args_list:
+            if "抱歉，我無法理解您的指令" in call.args[0]:
+                fallback_called = True
+                self.assertIn("列出目前可用的工具", call.args[0])
+                break
+
+        self.assertTrue(fallback_called, "Fallback message was not streamed")

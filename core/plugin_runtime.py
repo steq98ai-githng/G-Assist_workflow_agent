@@ -78,7 +78,7 @@ class PluginRuntime:
         def handle_agent(user_input: str = None, context: Context = None):
             if not user_input or not user_input.strip():
                 self.plugin.set_keep_session(True)
-                return (
+                self.plugin.stream(
                     "💠 **Antigravity DevCore System Agent v4.0.4**\n"
                     "工程指令就緒，請輸入查詢事項。\n\n"
                     "💡 提示：您可以試著問我：\n"
@@ -87,6 +87,7 @@ class PluginRuntime:
                     "- 「列出目前可用的工具」\n"
                     "- 「代碼自動重構分析」"
                 )
+                return ""
 
             error = self.intent_router.process_query(user_input, self.plugin.stream)
             self.plugin.set_keep_session(True)
