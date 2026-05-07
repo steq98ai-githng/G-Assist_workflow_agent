@@ -309,7 +309,7 @@ class StdioTransport(MCPTransport):
     """
 
     SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
@@ -326,47 +326,39 @@ class StdioTransport(MCPTransport):
         self._command = list(command)
 
         # Security: Prevent credential leakage to child processes
-        # Filter out sensitive environment variables from os.environ
-        safe_env = {
-            k: v for k, v in os.environ.items()
+        # Filter out sensitive environment variables from both os.environ and passed env
+        merged_env = {**os.environ, **(env or {})}
+        self._env = {
+            k: v for k, v in merged_env.items()
             if not any(keyword in k.upper() for keyword in self.SENSITIVE_KEYWORDS)
         }
 
-        self._env = {**safe_env, **(env or {})}
         self._process: Optional[subprocess.Popen] = None
         self._lock = threading.Lock()
 
     def _mask_sensitive_args(self, args: List[str]) -> List[str]:
-        """Mask sensitive information in command-line arguments for logging."""
+        """Mask sensitive values in command line arguments for logging."""
         masked = []
         skip_next = False
         for i, arg in enumerate(args):
             if skip_next:
+                masked.append("********")
                 skip_next = False
                 continue
 
             arg_str = str(arg)
             upper_arg = arg_str.upper()
 
-            # Case 1: --key=value
-            if "=" in arg_str:
-                key, val = arg_str.split("=", 1)
-                if any(k in key.upper() for k in self.SENSITIVE_KEYWORDS):
-                    masked.append(f"{key}=********")
-                    continue
-
-            # Case 2: --key value or sensitive positional arg
-            if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                if arg_str.startswith("-"):
-                    masked.append(arg_str)
-                    if i + 1 < len(args):
-                        masked.append("********")
-                        skip_next = True
-                else:
-                    masked.append("********")
-                continue
-
-            masked.append(arg_str)
+            # Handle --key=val
+            if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                key, _ = arg_str.split("=", 1)
+                masked.append(f"{key}=********")
+            # Handle --key val
+            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+                masked.append(arg_str)
+                skip_next = True
+            else:
+                masked.append(arg_str)
         return masked
 
     def start(self) -> bool:
