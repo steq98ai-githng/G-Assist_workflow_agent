@@ -15,7 +15,8 @@ class SystemIntentHandler(BaseIntentHandler):
     """
 
     async def handle_stream(self, request: AgentRequest) -> AsyncGenerator[str, None]:
-        logger.info(f"SystemIntentHandler 接收到請求: {request.user_input}")
+        logger.info("SystemIntentHandler 接收到請求 (長度: %d)", len(request.user_input))
+        logger.debug("SystemIntentHandler 請求內容: %s", request.user_input)
         yield "[System Diagnostic] 正在啟動系統診斷...\n"
         yield f"處理請求：{request.user_input}\n"
         # 未來整合: wmi, psutil 或其他系統層級的診斷指令

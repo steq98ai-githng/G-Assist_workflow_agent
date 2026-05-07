@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-MAX_QUERY_LENGTH = 50_000  # 0.5% of 10MB MAX_MESSAGE_SIZE (aligned with v4.0.4)
+MAX_QUERY_LENGTH = 10_000  # Security: Restricted to 10k to prevent resource exhaustion
 
 class IntentRouter:
-    # Maximum length for user queries to prevent resource exhaustion (0.5% of MAX_MESSAGE_SIZE)
+    # Maximum length for user queries to prevent resource exhaustion
     MAX_QUERY_LENGTH = MAX_QUERY_LENGTH
 
     def __init__(self, config: Dict[str, Any], mcp_manager: 'MCPManager', registry):
