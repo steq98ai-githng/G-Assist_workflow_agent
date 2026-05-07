@@ -30,10 +30,10 @@
 
 **Prevention:** Implement a masking helper that redacts values associated with sensitive keywords (e.g., `API_KEY`, `TOKEN`) in both `--key=value` and `--key value` formats before logging the command execution.
 
-## 2026-05-06 - Comprehensive Subprocess Environment Sanitization
+## 2026-05-07 - Sensitive Data in Intent Handler Logs
 
-**Vulnerability:** Information Disclosure (Credential Leakage)
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
 
-**Learning:** Initializing subprocesses with a user-provided `env` dictionary can bypass default environment sanitization if the provided dictionary itself contains sensitive keys. Merging `os.environ` with the custom `env` *before* filtering is necessary to ensure no credentials leak into the child process.
+**Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
 
-**Prevention:** In `StdioTransport.__init__`, merge all environment sources first, then iterate through the resulting dictionary to remove any keys matching `SENSITIVE_KEYWORDS` before passing it to `subprocess.Popen`.
+**Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
