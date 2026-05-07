@@ -308,7 +308,7 @@ class StdioTransport(MCPTransport):
     Per MCP spec: Uses newline-delimited JSON messages over stdin/stdout.
     """
 
-    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
+    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "AUTH"]
     FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
@@ -350,13 +350,26 @@ class StdioTransport(MCPTransport):
             upper_arg = arg_str.upper()
 
             # Handle --key=val
-            if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                key, _ = arg_str.split("=", 1)
-                masked.append(f"{key}=********")
-            # Handle --key val
-            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
-                masked.append(arg_str)
-                skip_next = True
+            if "=" in arg_str:
+                key, val = arg_str.split("=", 1)
+                if any(k in key.upper() or k in val.upper() for k in self.SENSITIVE_KEYWORDS):
+                    masked.append(f"{key}=********")
+                    continue
+
+            # Handle sensitive keyword detection
+            if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                # If it starts with a dash, it's likely a flag (e.g., --token VAL)
+                if arg_str.startswith("-"):
+                    if i + 1 < len(args):
+                        # Redact the next argument as it's likely the value for this flag
+                        masked.append(arg_str)
+                        skip_next = True
+                    else:
+                        # Keyword in a flag at the end of the command line
+                        masked.append("********")
+                else:
+                    # Not a flag, but contains sensitive keyword (e.g., standalone secret or "Token:xyz")
+                    masked.append("********")
             else:
                 masked.append(arg_str)
         return masked

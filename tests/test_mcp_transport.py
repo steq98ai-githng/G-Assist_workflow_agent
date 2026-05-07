@@ -12,6 +12,25 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from libs.gassist_sdk.mcp import StdioTransport
 
 class TestStdioTransport(unittest.TestCase):
+    def test_mask_sensitive_args(self):
+        """Verify that sensitive command line arguments are correctly masked."""
+        transport = StdioTransport(command=["echo", "test"])
+
+        test_cases = [
+            (["--auth", "SECRET_TOKEN"], ["--auth", "********"]),
+            (["Token:secret", "--other", "val"], ["********", "--other", "val"]),
+            (["--api-key=secret"], ["--api-key=********"]),
+            (["--password"], ["********"]),
+            (["--Authorization", "Bearer xyz"], ["--Authorization", "********"]),
+            (["--header=Authorization: Bearer xyz"], ["--header=********"]),
+            (["--token", "t1", "--secret", "s1"], ["--token", "********", "--secret", "********"]),
+        ]
+
+        for args, expected in test_cases:
+            with self.subTest(args=args):
+                masked = transport._mask_sensitive_args(args)
+                self.assertEqual(masked, expected)
+
     def test_environment_variable_sanitization(self):
         """Verify that sensitive environment variables are filtered out of the subprocess environment."""
 

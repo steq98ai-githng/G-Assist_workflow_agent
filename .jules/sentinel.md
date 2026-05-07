@@ -37,3 +37,11 @@
 **Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
+
+## 2026-05-07 - Enhanced Subprocess Log Masking
+
+**Vulnerability:** Information Disclosure via Subprocess Logs (Edge Cases)
+
+**Learning:** Initial masking logic for subprocess command-line arguments only covered '--key=val' and '--key val' where the key matched exactly. It missed cases where sensitive keywords appeared in values without an equals sign (e.g., 'Token:secret') or as standalone arguments that might be sensitive values.
+
+**Prevention:** Use a more robust masking logic that redacts any argument containing a sensitive keyword if it doesn't start with a dash, and redacts the subsequent argument if it does start with a dash (treating it as a flag). Additionally, expand the sensitive keyword list to include common terms like 'AUTH'.
