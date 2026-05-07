@@ -68,7 +68,7 @@ class IntentRouter:
         """Processes a query in a background thread and streams results."""
         if len(user_query) > self.MAX_QUERY_LENGTH:
             return (
-                f"❌ 查詢內容過長 (上限 {MAX_QUERY_LENGTH:,} 字元)。\n\n"
+                f"❌ 查詢內容過長 (上限 {self.MAX_QUERY_LENGTH:,} 字元)。\n\n"
                 "🛠️ 解決步驟：\n"
                 "1. 請簡化您的查詢，或拆分成更小的任務。\n"
                 "2. 避免在單一查詢中貼上大量代碼或日誌。"
@@ -120,8 +120,11 @@ class IntentRouter:
                             text_resp = (
                                 "抱歉，我無法理解您的指令或未獲得有效回應。\n\n"
                                 "🛠️ 解決步驟：\n"
-                                "1. 請嘗試更明確地描述您的需求。\n"
-                                "2. 嘗試使用常見指令（例如：「列出目前可用的工具」、「代碼自動重構分析」）。"
+                                "1. 請嘗試更明確地描述需求。\n"
+                                "2. 使用常見指令：\n"
+                                "   - 「幫我進行系統效能診斷」\n"
+                                "   - 「優化我的 Git 工作流」\n"
+                                "   - 「對這段程式碼進行自動重構分析」"
                             )
                         res_q.put(("text", text_resp))
                         break

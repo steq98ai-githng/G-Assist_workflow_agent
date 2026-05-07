@@ -319,7 +319,11 @@ class StdioTransport(MCPTransport):
             command: Command to spawn MCP server (e.g., ["node", "server.js"])
             env: Environment variables for the subprocess
         """
-        self._command = command
+        # Security: Prevent shell injection via command arguments
+        if any(any(f in str(part) for f in self.FORBIDDEN_METACHARS) for part in command):
+            raise MCPError("Potential shell injection detected in command arguments")
+
+        self._command = list(command)
 
         # Security: Prevent credential leakage to child processes
         # Filter out sensitive environment variables from os.environ
@@ -458,6 +462,13 @@ class HTTPTransport(MCPTransport):
         self._session_timeout = session_timeout
         self._verify = verify
         self._proxies = proxies
+
+        if self._verify is False:
+            logger.warning(
+                "SSL verification is disabled (verify=False) for MCP HTTP transport. "
+                "This is a security risk and should only be used for local testing. "
+                "It allows potential Man-in-the-Middle (MITM) attacks."
+            )
         self._session_id: Optional[str] = None
         self._session_last_used: float = 0.0
         self._closed = False
