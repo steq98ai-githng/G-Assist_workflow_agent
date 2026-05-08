@@ -37,3 +37,11 @@
 **Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
+
+## 2026-05-08 - Improved Masking and Metacharacter Validation
+
+**Vulnerability:** Information Disclosure and Subprocess Injection
+
+**Learning:** Robust log masking must handle standalone sensitive values (e.g., tokens passed directly) in addition to flag-value pairs. Furthermore, shell metacharacter validation should include the space character to prevent splitting arguments in vulnerable environments.
+
+**Prevention:** Ensure `_mask_sensitive_args` identifies standalone keywords and masks them immediately. Include `" "` in `FORBIDDEN_METACHARS` to strengthen command argument validation.

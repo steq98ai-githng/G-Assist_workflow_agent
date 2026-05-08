@@ -309,7 +309,7 @@ class StdioTransport(MCPTransport):
     """
 
     SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~", " "]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
@@ -353,10 +353,13 @@ class StdioTransport(MCPTransport):
             if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
                 key, _ = arg_str.split("=", 1)
                 masked.append(f"{key}=********")
-            # Handle --key val
-            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+            # Handle flag format: --key val
+            elif arg_str.startswith("-") and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
                 masked.append(arg_str)
                 skip_next = True
+            # Handle standalone sensitive values
+            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                masked.append("********")
             else:
                 masked.append(arg_str)
         return masked
