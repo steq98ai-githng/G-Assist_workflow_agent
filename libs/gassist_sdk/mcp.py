@@ -360,7 +360,7 @@ class StdioTransport(MCPTransport):
                 masked.append(arg_str)
                 skip_next = True
             # Handle standalone sensitive value
-            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+            elif any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS):
                 masked.append("********")
             else:
                 masked.append(arg_str)
