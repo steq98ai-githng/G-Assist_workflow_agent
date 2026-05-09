@@ -115,6 +115,9 @@ class TestIntentRouter(unittest.TestCase):
             if "抱歉，我無法理解您的指令" in call.args[0]:
                 fallback_called = True
                 self.assertIn("列出目前可用的工具", call.args[0])
+                self.assertIn("系統效能診斷", call.args[0])
+                self.assertIn("Git 工作流優化", call.args[0])
+                self.assertIn("代碼自動重構分析", call.args[0])
                 break
 
         self.assertTrue(fallback_called, "Fallback message was not streamed")
