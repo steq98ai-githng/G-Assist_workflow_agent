@@ -388,6 +388,7 @@ class StdioTransport(MCPTransport):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 env=self._env,
+                shell=False,
                 bufsize=0
             )
             masked_cmd = self._mask_sensitive_args(self._command)

@@ -17,3 +17,7 @@
 ## 2025-06-12 - Handling Unrecognized Model Responses
 **Learning:** When a model response contains no text and no tool calls, it indicates an unrecognized intent. In a streaming text interface, this "silent" failure can be confusing. Treating this as a conversational empty state is more effective.
 **Action:** Implement a robust fallback for empty model responses that uses the "🛠️ 解決步驟：" prefix and provides specific, valid command examples (e.g., 「代碼自動重構分析」) to guide the user back to a productive state.
+
+## 2025-07-24 - Guided Tool Discovery on Failure
+**Learning:** When a tool call fails due to missing registration or execution errors, simply providing generic troubleshooting steps (like "check logs") is insufficient. Guiding the user to a "discovery" command helps them self-correct.
+**Action:** In MCP tool error messages, always include a specific suggestion to run the 「列出目前可用的工具」 command to help the user verify tool availability and correct naming.
