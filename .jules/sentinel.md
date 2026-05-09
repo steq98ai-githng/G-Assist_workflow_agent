@@ -37,3 +37,11 @@
 **Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
+
+## 2026-05-09 - Enhanced Subprocess Injection and Masking Fixes
+
+**Vulnerability:** Subprocess Injection (Space bypass) & Credential Leakage (Incomplete Masking)
+
+**Learning:** Shell injection can still occur if space characters are allowed in command arguments, as they can be used to separate commands in certain shell environments or misconfigured transports. Furthermore, masking logic must be robust enough to handle standalone sensitive values and distinguish between flags and positional arguments to avoid leaking secrets that are not explicitly prefixed.
+
+**Prevention:** Add the space character `" "` to the `FORBIDDEN_METACHARS` list for subprocess commands. Enhance `_mask_sensitive_args` to always mask standalone strings containing sensitive keywords, and ensure that only actual flags (starting with `-` or `--`) trigger the masking of the subsequent argument.
