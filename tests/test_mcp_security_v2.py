@@ -31,5 +31,17 @@ class TestMCPSecurityFixed(unittest.TestCase):
             StdioTransport(command=["echo", "line1\nline2"])
         self.assertIn("Potential shell injection detected", str(cm.exception))
 
+    def test_auth_keyword_masked(self):
+        """Verify that the new 'AUTH' keyword is correctly masked in logs."""
+        transport = StdioTransport(command=["login", "--auth", "secret-token"])
+        masked = transport._mask_sensitive_args(transport._command)
+        self.assertEqual(masked, ["login", "--auth", "********"])
+
+    def test_auth_env_filtered(self):
+        """Verify that environment variables containing 'AUTH' are filtered."""
+        explicit_env = {"MY_AUTH_TOKEN": "secret"}
+        transport = StdioTransport(command=["echo", "test"], env=explicit_env)
+        self.assertNotIn("MY_AUTH_TOKEN", transport._env)
+
 if __name__ == "__main__":
     unittest.main()

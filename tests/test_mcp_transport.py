@@ -28,6 +28,7 @@ class TestStdioTransport(unittest.TestCase):
             os.environ["DB_PASSWORD"] = "password456"  # nosec B105
             os.environ["AWS_SECRET_ACCESS_KEY"] = "aws_secret"  # nosec B105
             os.environ["USER_CREDENTIALS"] = "creds_789"  # nosec B105
+            os.environ["BEARER_AUTH"] = "auth_token"  # nosec B105
 
             # Explicitly passed safe env override
             explicit_env = {"EXPLICIT_VAR": "explicit_value"}
@@ -55,6 +56,7 @@ class TestStdioTransport(unittest.TestCase):
             self.assertNotIn("DB_PASSWORD", subprocess_env)
             self.assertNotIn("AWS_SECRET_ACCESS_KEY", subprocess_env)
             self.assertNotIn("USER_CREDENTIALS", subprocess_env)
+            self.assertNotIn("BEARER_AUTH", subprocess_env)
 
         finally:
             # Restore original environment

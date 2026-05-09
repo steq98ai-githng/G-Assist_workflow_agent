@@ -38,10 +38,10 @@
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
 
-## 2026-05-09 - Enhanced Subprocess Injection and Masking Fixes
+## 2026-05-09 - Hardening Subprocess Logs & Environment
 
-**Vulnerability:** Subprocess Injection (Space bypass) & Credential Leakage (Incomplete Masking)
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs/Environment)
 
-**Learning:** Shell injection can still occur if space characters are allowed in command arguments, as they can be used to separate commands in certain shell environments or misconfigured transports. Furthermore, masking logic must be robust enough to handle standalone sensitive values and distinguish between flags and positional arguments to avoid leaking secrets that are not explicitly prefixed.
+**Learning:** The `AUTH` keyword (e.g., in `Authorization` headers or `--auth` flags) is a common vector for sensitive tokens. If omitted from sensitive keyword lists, it can leak into system logs or be passed to subprocesses in the environment.
 
-**Prevention:** Add the space character `" "` to the `FORBIDDEN_METACHARS` list for subprocess commands. Enhance `_mask_sensitive_args` to always mask standalone strings containing sensitive keywords, and ensure that only actual flags (starting with `-` or `--`) trigger the masking of the subsequent argument.
+**Prevention:** Ensure `AUTH` is included in `SENSITIVE_KEYWORDS` for masking in logs and filtering from subprocess environments. Additionally, explicitly set `shell=False` in `subprocess.Popen` when using argument lists to strictly prevent shell interpretation and injection.
