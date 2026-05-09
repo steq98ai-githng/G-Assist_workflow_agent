@@ -308,8 +308,8 @@ class StdioTransport(MCPTransport):
     Per MCP spec: Uses newline-delimited JSON messages over stdin/stdout.
     """
 
-    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"]
-    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~"]
+    SENSITIVE_KEYWORDS = ["API_KEY", "API-KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL", "AUTH"]
+    FORBIDDEN_METACHARS = [";", "&", "|", "$", "`", ">", "<", "(", ")", "!", "{", "}", "\\", "\n", "\r", "*", "?", "[", "]", "~", " "]
 
     def __init__(self, command: List[str], env: Dict[str, str] = None):
         """
@@ -351,12 +351,17 @@ class StdioTransport(MCPTransport):
 
             # Handle --key=val
             if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                key, _ = arg_str.split("=", 1)
-                masked.append(f"{key}=********")
-            # Handle --key val
-            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+                parts = arg_str.split("=", 1)
+                masked.append(f"{parts[0]}=********")
+            # Handle --key val (only if it starts with - or --)
+            elif (arg_str.startswith("-") or arg_str.startswith("--")) and \
+                 any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and \
+                 i + 1 < len(args):
                 masked.append(arg_str)
                 skip_next = True
+            # Handle standalone sensitive value
+            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                masked.append("********")
             else:
                 masked.append(arg_str)
         return masked
