@@ -37,3 +37,11 @@
 **Learning:** Logging raw user input at the `INFO` level in intent handlers (e.g., `GitIntentHandler`, `SystemIntentHandler`) can leak sensitive information (passwords, tokens, private data) into system logs, which may be accessible to unauthorized users or stored insecurely.
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
+
+## 2026-05-09 - Hardening Subprocess Logs & Environment
+
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs/Environment)
+
+**Learning:** The `AUTH` keyword (e.g., in `Authorization` headers or `--auth` flags) is a common vector for sensitive tokens. If omitted from sensitive keyword lists, it can leak into system logs or be passed to subprocesses in the environment.
+
+**Prevention:** Ensure `AUTH` is included in `SENSITIVE_KEYWORDS` for masking in logs and filtering from subprocess environments. Additionally, explicitly set `shell=False` in `subprocess.Popen` when using argument lists to strictly prevent shell interpretation and injection.
