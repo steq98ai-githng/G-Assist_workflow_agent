@@ -355,7 +355,7 @@ class StdioTransport(MCPTransport):
                 masked.append(f"{parts[0]}=********")
             # Handle --key val (only if it starts with - or --)
             elif (arg_str.startswith("-") or arg_str.startswith("--")) and \
-                 any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and \
+                 any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS) and \
                  i + 1 < len(args):
                 masked.append(arg_str)
                 skip_next = True
