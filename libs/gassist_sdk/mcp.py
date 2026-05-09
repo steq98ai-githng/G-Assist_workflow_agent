@@ -350,13 +350,18 @@ class StdioTransport(MCPTransport):
             upper_arg = arg_str.upper()
 
             # Handle --key=val
-            if "=" in arg_str and any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
-                key, _ = arg_str.split("=", 1)
-                masked.append(f"{key}=********")
-            # Handle --key val
-            elif any(k in upper_arg for k in self.SENSITIVE_KEYWORDS) and i + 1 < len(args):
+            if "=" in arg_str and any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS):
+                parts = arg_str.split("=", 1)
+                masked.append(f"{parts[0]}=********")
+            # Handle --key val (only if it starts with - or --)
+            elif (arg_str.startswith("-") or arg_str.startswith("--")) and \
+                 any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS) and \
+                 i + 1 < len(args):
                 masked.append(arg_str)
                 skip_next = True
+            # Handle standalone sensitive value
+            elif any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS):
+                masked.append("********")
             else:
                 masked.append(arg_str)
         return masked
