@@ -38,10 +38,10 @@
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
 
-## 2026-05-09 - Hardening Subprocess Logs & Environment
+## 2026-05-07 - Enhanced Subprocess Log Masking
 
-**Vulnerability:** Information Disclosure (Sensitive Data in Logs/Environment)
+**Vulnerability:** Information Disclosure via Subprocess Logs (Edge Cases)
 
-**Learning:** The `AUTH` keyword (e.g., in `Authorization` headers or `--auth` flags) is a common vector for sensitive tokens. If omitted from sensitive keyword lists, it can leak into system logs or be passed to subprocesses in the environment.
+**Learning:** Initial masking logic for subprocess command-line arguments only covered '--key=val' and '--key val' where the key matched exactly. It missed cases where sensitive keywords appeared in values without an equals sign (e.g., 'Token:secret') or as standalone arguments that might be sensitive values.
 
-**Prevention:** Ensure `AUTH` is included in `SENSITIVE_KEYWORDS` for masking in logs and filtering from subprocess environments. Additionally, explicitly set `shell=False` in `subprocess.Popen` when using argument lists to strictly prevent shell interpretation and injection.
+**Prevention:** Use a more robust masking logic that redacts any argument containing a sensitive keyword if it doesn't start with a dash, and redacts the subsequent argument if it does start with a dash (treating it as a flag). Additionally, expand the sensitive keyword list to include common terms like 'AUTH'.

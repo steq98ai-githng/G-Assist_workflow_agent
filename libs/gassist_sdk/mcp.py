@@ -350,18 +350,26 @@ class StdioTransport(MCPTransport):
             upper_arg = arg_str.upper()
 
             # Handle --key=val
-            if "=" in arg_str and any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS):
-                parts = arg_str.split("=", 1)
-                masked.append(f"{parts[0]}=********")
-            # Handle --key val (only if it starts with - or --)
-            elif (arg_str.startswith("-") or arg_str.startswith("--")) and \
-                 any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS) and \
-                 i + 1 < len(args):
-                masked.append(arg_str)
-                skip_next = True
-            # Handle standalone sensitive value
-            elif any(re.search(rf"\b{k}\b", upper_arg) for k in self.SENSITIVE_KEYWORDS):
-                masked.append("********")
+            if "=" in arg_str:
+                key, val = arg_str.split("=", 1)
+                if any(k in key.upper() or k in val.upper() for k in self.SENSITIVE_KEYWORDS):
+                    masked.append(f"{key}=********")
+                    continue
+
+            # Handle sensitive keyword detection
+            if any(k in upper_arg for k in self.SENSITIVE_KEYWORDS):
+                # If it starts with a dash, it's likely a flag (e.g., --token VAL)
+                if arg_str.startswith("-"):
+                    if i + 1 < len(args):
+                        # Redact the next argument as it's likely the value for this flag
+                        masked.append(arg_str)
+                        skip_next = True
+                    else:
+                        # Keyword in a flag at the end of the command line
+                        masked.append("********")
+                else:
+                    # Not a flag, but contains sensitive keyword (e.g., standalone secret or "Token:xyz")
+                    masked.append("********")
             else:
                 masked.append(arg_str)
         return masked
