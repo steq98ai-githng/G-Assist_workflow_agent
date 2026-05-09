@@ -38,10 +38,10 @@
 
 **Prevention:** Restrict logging of raw user input to `DEBUG` or `TRACE` levels. For `INFO` level logs, only record metadata such as the length of the input to provide operational visibility without compromising security.
 
-## 2026-05-07 - Enhanced Subprocess Log Masking
+## 2026-05-08 - Subprocess Logging and Injection Hardening
 
-**Vulnerability:** Information Disclosure via Subprocess Logs (Edge Cases)
+**Vulnerability:** Information Disclosure and Subprocess Injection Risk
 
-**Learning:** Initial masking logic for subprocess command-line arguments only covered '--key=val' and '--key val' where the key matched exactly. It missed cases where sensitive keywords appeared in values without an equals sign (e.g., 'Token:secret') or as standalone arguments that might be sensitive values.
+**Learning:** The `_mask_sensitive_args` logic was incorrectly masking the *next* argument for any sensitive keyword, which could leak the sensitive value itself if it wasn't a flag, and mask a safe argument instead. Additionally, shell metacharacter validation was missing the space character, which could be used in some environments to bypass certain shell-like parsing checks.
 
-**Prevention:** Use a more robust masking logic that redacts any argument containing a sensitive keyword if it doesn't start with a dash, and redacts the subsequent argument if it does start with a dash (treating it as a flag). Additionally, expand the sensitive keyword list to include common terms like 'AUTH'.
+**Prevention:** Ensure `_mask_sensitive_args` only triggers "mask next" behavior for actual flags (starting with `-`). Standalone sensitive values must be masked immediately. Add the space character to `FORBIDDEN_METACHARS` to further restrict command string interpretation.
