@@ -45,3 +45,11 @@
 **Learning:** Robust log masking must handle standalone sensitive values (e.g., tokens passed directly) in addition to flag-value pairs. Furthermore, shell metacharacter validation should include the space character to prevent splitting arguments in vulnerable environments.
 
 **Prevention:** Ensure `_mask_sensitive_args` identifies standalone keywords and masks them immediately. Include `" "` in `FORBIDDEN_METACHARS` to strengthen command argument validation.
+
+## 2026-05-10 - Masking Authentication Tokens and Headers
+
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
+
+**Learning:** Authentication tokens often appear in command line arguments as part of complex strings (e.g., `Authorization: Bearer <token>`) or as standalone values following a flag. Generic masking that only looks for `key=value` or `--flag value` might miss these patterns if the keyword `"AUTH"` is not explicitly tracked or if the parsing logic is too rigid.
+
+**Prevention:** Include `"AUTH"` in `SENSITIVE_KEYWORDS` to capture various authentication-related parameters. Refactor `_mask_sensitive_args` to use a more robust "is_sensitive" check that applies to any argument containing a sensitive keyword, ensuring headers and standalone tokens are masked.
