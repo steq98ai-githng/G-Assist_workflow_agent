@@ -53,3 +53,11 @@
 **Learning:** The keyword list used for masking sensitive data must be comprehensive. Missing common authentication-related keywords like "AUTH" can lead to leakage of bearer tokens or authorization headers in system logs and child process environments.
 
 **Prevention:** Include "AUTH" in the `SENSITIVE_KEYWORDS` list to ensure that variables like `BEARER_AUTH` and flags like `--Authorization` are correctly sanitized.
+
+## 2026-05-12 - Sensitive Keyword Regression Fix
+
+**Vulnerability:** Information Disclosure (Secrets in Logs)
+
+**Learning:** When expanding the `SENSITIVE_KEYWORDS` list, ensure the change is propagated to all relevant transport classes. Missing the "AUTH" keyword in `StdioTransport` specifically allows credentials like `--auth-token` to be logged in plain text.
+
+**Prevention:** Maintain a centralized or synchronized list of sensitive keywords across all transport and logging modules to ensure consistent data redaction.
