@@ -57,9 +57,9 @@ def clean_and_package():
             d_path = os.path.join(PROJECT_DIR, d)
             if os.path.exists(d_path):
                 print(f"  - Scanning directory: {d}")
-                for root, _, files in os.walk(d_path):
-                    if "__pycache__" in root:
-                        continue
+                for root, dirs, files in os.walk(d_path):
+                    if "__pycache__" in dirs:
+                        dirs.remove("__pycache__")
                     for file in files:
                         file_path = os.path.join(root, file)
                         archive_name = os.path.relpath(file_path, PROJECT_DIR)
