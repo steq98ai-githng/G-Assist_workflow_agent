@@ -78,16 +78,17 @@ class PluginRuntime:
         def handle_agent(user_input: str = None, context: Context = None):
             if not user_input or not user_input.strip():
                 self.plugin.set_keep_session(True)
-                self.plugin.stream(
+                msg = (
                     "💠 **Antigravity DevCore System Agent v4.0.4**\n"
                     "工程指令就緒，請輸入查詢事項。\n\n"
                     "💡 提示：您可以試著問我：\n"
                     "- 「系統效能診斷」\n"
                     "- 「Git 工作流優化」\n"
-                    "- 「列出目前可用的工具」\n"
-                    "- 「代碼自動重構分析」"
+                    "- 「代碼自動重構分析」\n"
+                    "- 「列出目前可用的工具」"
                 )
-                return ""
+                self.plugin.stream(msg)
+                return msg
 
             error = self.intent_router.process_query(user_input, self.plugin.stream)
             self.plugin.set_keep_session(True)

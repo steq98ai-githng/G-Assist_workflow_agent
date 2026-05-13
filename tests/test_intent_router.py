@@ -118,6 +118,7 @@ class TestIntentRouter(unittest.TestCase):
                 self.assertIn("系統效能診斷", call.args[0])
                 self.assertIn("Git 工作流優化", call.args[0])
                 self.assertIn("代碼自動重構分析", call.args[0])
+                self.assertIn("使用常見指令範例：", call.args[0])
                 break
 
         self.assertTrue(fallback_called, "Fallback message was not streamed")
