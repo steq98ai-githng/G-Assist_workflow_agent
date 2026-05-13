@@ -14,7 +14,12 @@ sys.modules["requests"] = mock_requests
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from libs.gassist_sdk.mcp import HTTPTransport, HAS_REQUESTS
+import libs.gassist_sdk.mcp
+# Monkeypatch HAS_REQUESTS if it was already imported and set to False
+libs.gassist_sdk.mcp.HAS_REQUESTS = True
+libs.gassist_sdk.mcp.requests = mock_requests
+
+from libs.gassist_sdk.mcp import HTTPTransport
 
 class TestMCPSecurity(unittest.TestCase):
     def test_verify_false_logs_warning(self):

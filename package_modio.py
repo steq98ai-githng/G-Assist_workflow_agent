@@ -40,10 +40,12 @@ def create_package():
         for d in include_dirs:
             dir_path = os.path.join(src_dir, d)
             if os.path.exists(dir_path):
-                for root, _, files in os.walk(dir_path):
+                for root, dirs, files in os.walk(dir_path):
                     # 過濾快取與編譯檔
-                    if "__pycache__" in root or ".pytest_cache" in root:
-                        continue
+                    # 透過修改 dirs 列表來避免進入不必要的子目錄 (Performance Optimization)
+                    for skip_dir in ["__pycache__", ".pytest_cache"]:
+                        if skip_dir in dirs:
+                            dirs.remove(skip_dir)
                         
                     for file in files:
                         if file.endswith((".pyc", ".pyo")):
