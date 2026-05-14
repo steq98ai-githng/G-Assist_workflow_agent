@@ -21,3 +21,7 @@
 ## 2025-07-24 - Guided Tool Discovery on Failure
 **Learning:** When a tool call fails due to missing registration or execution errors, simply providing generic troubleshooting steps (like "check logs") is insufficient. Guiding the user to a "discovery" command helps them self-correct.
 **Action:** In MCP tool error messages, always include a specific suggestion to run the 「列出目前可用的工具」 command to help the user verify tool availability and correct naming.
+
+## 2025-08-10 - Descriptive Onboarding Hints
+**Learning:** In the agent's empty state, simply listing command names is often insufficient for new users who may not know the purpose of each capability.
+**Action:** Use the categorizing header 「使用常見指令範例：」 followed by a numbered list that includes brief, one-sentence descriptions for each core capability (e.g., 系統效能診斷, Git 工作流優化) to improve discoverability and onboarding.
