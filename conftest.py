@@ -6,6 +6,13 @@ conftest.py — pytest 根配置
 """
 import sys
 import os
+from unittest.mock import MagicMock
+
+# Security/Platform Fix: Mock windll for Linux environments to prevent ImportError
+# when importing libs.gassist_sdk.protocol which uses Windows-specific kernel32 calls.
+import ctypes
+if not hasattr(ctypes, "windll"):
+    ctypes.windll = MagicMock()
 
 _project_root = os.path.dirname(os.path.abspath(__file__))
 
