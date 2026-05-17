@@ -46,10 +46,10 @@
 
 **Prevention:** Ensure `_mask_sensitive_args` identifies standalone keywords and masks them immediately. Include `" "` in `FORBIDDEN_METACHARS` to strengthen command argument validation.
 
-## 2026-05-11 - Sensitive Keyword List Expansion
+## 2026-05-10 - Exhaustive Sensitive Keyword Filtering
 
-**Vulnerability:** Information Disclosure (Secrets in Logs/Subprocess Environment)
+**Vulnerability:** Information Disclosure (Sensitive Data in Logs)
 
-**Learning:** The keyword list used for masking sensitive data must be comprehensive. Missing common authentication-related keywords like "AUTH" can lead to leakage of bearer tokens or authorization headers in system logs and child process environments.
+**Learning:** Sensitive keyword lists used for credential masking and environment filtering must be exhaustive. Omitting common keywords like 'AUTH' can lead to the accidental disclosure of authentication tokens that don't match other patterns like 'TOKEN' or 'API_KEY'.
 
-**Prevention:** Include "AUTH" in the `SENSITIVE_KEYWORDS` list to ensure that variables like `BEARER_AUTH` and flags like `--Authorization` are correctly sanitized.
+**Prevention:** Ensure specific authentication keywords (e.g., 'AUTHORIZATION', 'AUTHENTICATION', 'AUTH_', 'AUTH-') are included in all sensitive keyword blacklists used for log masking and subprocess environment filtering.
