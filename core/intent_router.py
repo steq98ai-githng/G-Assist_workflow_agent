@@ -121,11 +121,11 @@ class IntentRouter:
                                 "抱歉，我無法理解您的指令或未獲得有效回應。\n\n"
                                 "🛠️ 解決步驟：\n"
                                 "1. 請嘗試更明確地描述需求。\n"
-                                "2. 使用常見指令：\n"
-                                "   - 「系統效能診斷」\n"
-                                "   - 「Git 工作流優化」\n"
-                                "   - 「代碼自動重構分析」\n"
-                                "   - 「列出目前可用的工具」"
+                                "2. 使用常見指令範例：\n"
+                                "   1. 「系統效能診斷」 (multi-modal vision for diagnostics)\n"
+                                "   2. 「Git 工作流優化」 (GitKraken MCP integration)\n"
+                                "   3. 「代碼自動重構分析」 (semantic code refactoring and error correction)\n"
+                                "   4. 「列出目前可用的工具」 (list all registered MCP tools and functions)"
                             )
                         res_q.put(("text", text_resp))
                         break
