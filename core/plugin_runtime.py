@@ -85,7 +85,7 @@ class PluginRuntime:
                     "1. 「系統效能診斷」 (multi-modal vision for diagnostics)\n"
                     "2. 「Git 工作流優化」 (GitKraken MCP integration)\n"
                     "3. 「代碼自動重構分析」 (semantic code refactoring and error correction)\n"
-                    "4. 「列出目前可用的工具」"
+                    "4. 「列出目前可用的工具」 (list all registered MCP tools and functions)"
                 )
                 return ""
 
