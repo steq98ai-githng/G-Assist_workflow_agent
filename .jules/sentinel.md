@@ -52,4 +52,4 @@
 
 **Learning:** Sensitive keyword lists used for credential masking and environment filtering must be exhaustive. Omitting common keywords like 'AUTH' can lead to the accidental disclosure of authentication tokens that don't match other patterns like 'TOKEN' or 'API_KEY'.
 
-**Prevention:** Ensure 'AUTH' is included in all sensitive keyword blacklists used for log masking and subprocess environment filtering.
+**Prevention:** Ensure specific authentication keywords (e.g., 'AUTHORIZATION', 'AUTHENTICATION', 'AUTH_', 'AUTH-') are included in all sensitive keyword blacklists used for log masking and subprocess environment filtering.
