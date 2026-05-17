@@ -79,7 +79,8 @@ class MCPManager:
             except Exception:
                 logger.error(f"[MCP] Error calling tool {tool_name} on client {name}", exc_info=True)
                 return (
-                    f"❌ MCP 工具 `{tool_name}` 執行失敗 (伺服器: `{name}`)。\n\n"
+                    f"❌ MCP 工具 `{tool_name}` 執行失敗 (伺服器: `{name}`)。\n"
+                    "這通常是因為工具內部發生錯誤或輸入參數格式不符。\n\n"
                     "🛠️ 解決步驟：\n"
                     f"1. 請檢查 MCP 伺服器 `{name}` 是否正常運作。\n"
                     "2. 嘗試執行「列出目前可用的工具」以確認工具狀態。\n"
@@ -88,10 +89,11 @@ class MCPManager:
                 )
 
         return (
-            f"❌ 找不到 MCP 工具 `{tool_name}`。\n\n"
+            f"❌ 找不到 MCP 工具 `{tool_name}`。\n"
+            "這可能是因為工具名稱拼字錯誤，或該 MCP 伺服器尚未啟動。\n\n"
             "🛠️ 解決步驟：\n"
-            "1. 執行「列出目前可用的工具」指令確認工具名稱與可用性。\n"
-            "2. 請確認 MCP 伺服器已正確連接且狀態為運作中。\n"
-            "3. 嘗試重新啟動外掛程式以重新載入工具清單。\n"
+            "1. 請確認 MCP 伺服器已正確連接且狀態為運作中。\n"
+            "2. 嘗試執行「列出目前可用的工具」以確認工具名稱。\n"
+            "3. 重新啟動外掛程式以重新載入工具清單。\n"
             "4. 查看日誌確認是否有 MCP 伺服器啟動失敗的紀錄。"
         )
